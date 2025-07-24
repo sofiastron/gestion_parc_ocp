@@ -1,0 +1,102 @@
+{% extends 'base.html' %}  <!-- Si vous avez un template de base -->
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Liste des Équipements</h2>
+    
+    <div class="mb-3">
+        <a href="{% url 'ajouter_equipement' %}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Ajouter un équipement
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Désignation</th>
+                    <th>Type</th>
+                    <th>Fabricant</th>
+                    <th>Modèle</th>
+                    <th>État</th>
+                    <th>Localisation</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for equipement in equipements %}
+                <tr>
+                    <td>{{ equipement.id }}</td>
+                    <td>{{ equipement.designation }}</td>
+                    <td>{{ equipement.get_type_equipement_display }}</td>
+                    <td>{{ equipement.fabriquant }}</td>
+                    <td>{{ equipement.modele }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if equipement.etat == 'DISPO' %}bg-success
+                            {% elif equipement.etat == 'EN_PANNE' %}bg-danger
+                            {% else %}bg-warning{% endif %}">
+                            {{ equipement.get_etat_display }}
+                        </span>
+                    </td>
+                    <td>{{ equipement.localisation }}</td>
+                    <td>
+                        <a href="{% url 'detail_equipement' equipement.id %}" class="btn btn-sm btn-info">
+                            <i class="bi bi-eye"></i> Détails
+                        </a>
+                        <a href="{% url 'modifier_equipement' equipement.id %}" class="btn btn-sm btn-warning">
+                            <i class="bi bi-pencil"></i> Modifier
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">Aucun équipement enregistré</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+/* styles.css : Couleurs OCP */
+body {
+    background-color: #f5f9f6; /* Fond clair inspiré du vert pâle */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #1b5e20; /* Vert foncé OCP */
+}
+
+h2 {
+    color: #1b5e20;
+    font-weight: bold;
+    text-align: center;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 128, 0, 0.1);
+}
+
+.form-label {
+    font-weight: bold;
+    color: #2e7d32;
+}
+
+input.form-control,
+select.form-select {
+    border: 2px solid #a5d6a7;
+    border-radius: 6px;
+    transition: 0.3s ease;
+}
+
+input.form-control:focus,
+select.form-select:focus {
+    border-color: #388e3c;
+    box-shadow: 0 0 0 3px rgba(56, 142, 60, 0.2);
+}
+
+.btn-primary {
+    background-color: #1b5e20;
+    border-color: #1b5e20;
+}
+
+.btn-primary:hover {
+    background-color: #2e7d32;
+    border-color: #2e7d32;
+}
+
+.text-danger {
+    font-size: 0.9em;
+    color: #c62828;
+}
+
+.form-text {
+    font-size: 0.8em;
+    color: #555;
+}

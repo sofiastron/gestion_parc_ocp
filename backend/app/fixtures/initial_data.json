@@ -1,0 +1,160 @@
+[
+  {
+    "model": "app.service",
+    "pk": 1,
+    "fields": { "nom": "Informatique" }
+  },
+  {
+    "model": "app.service",
+    "pk": 2,
+    "fields": { "nom": "Production" }
+  },
+  {
+    "model": "app.service",
+    "pk": 3,
+    "fields": { "nom": "Maintenance" }
+  },
+
+  {
+    "model": "app.role",
+    "pk": 1,
+    "fields": { "nom": "ADMIN", "permissions": {} }
+  },
+  {
+    "model": "app.role",
+    "pk": 2,
+    "fields": { "nom": "TECH", "permissions": {} }
+  },
+  {
+    "model": "app.role",
+    "pk": 3,
+    "fields": { "nom": "USER", "permissions": {} }
+  },
+
+  {
+    "model": "app.utilisateur",
+    "pk": 1,
+    "fields": {
+      "username": "admin1",
+      "password": "pbkdf2_sha256$260000$uWJtEj9...exemplehash", 
+      "matricule": "ADM001",
+      "telephone": "0600000001",
+      "emplacement": "Bureau Direction",
+      "role": 1,
+      "service": 1,
+      "is_superuser": true,
+      "is_staff": true,
+      "is_active": true
+    }
+  },
+
+  {
+    "model": "app.utilisateur",
+    "pk": 2,
+    "fields": {
+      "username": "tech1",
+      "password": "pbkdf2_sha256$260000$uWJtEj9...exemplehash",
+      "matricule": "TECH001",
+      "telephone": "0600000002",
+      "emplacement": "Atelier Maintenance",
+      "role": 2,
+      "service": 3,
+      "is_superuser": false,
+      "is_staff": true,
+      "is_active": true
+    }
+  },
+
+  {
+    "model": "app.utilisateur",
+    "pk": 3,
+    "fields": {
+      "username": "user1",
+      "password": "pbkdf2_sha256$260000$uWJtEj9...exemplehash",
+      "matricule": "USR001",
+      "telephone": "0600000003",
+      "emplacement": "Poste travail 5",
+      "role": 3,
+      "service": 1,
+      "is_superuser": false,
+      "is_staff": false,
+      "is_active": true
+    }
+  },
+
+  {
+    "model": "app.administrateur",
+    "pk": 1,
+    "fields": {
+      "utilisateur": 1,
+      "administration": "Direction Générale"
+    }
+  },
+
+  {
+    "model": "app.technicien",
+    "pk": 1,
+    "fields": {
+      "utilisateur": 2,
+      "groupe_affectation": "Maintenance réseau",
+      "responsabilites": "Assurer la maintenance des équipements réseau."
+    }
+  },
+
+  {
+    "model": "app.equipement",
+    "pk": 1,
+    "fields": {
+      "designation": "PC Direction",
+      "fabriquant": "HP",
+      "modele": "EliteDesk 800",
+      "etat": "DISPO",
+      "destination": "Direction",
+      "localisation": "Bureau 101",
+      "date_livraison": "2023-09-01",
+      "duree_garantie": 36,
+      "ip": "192.168.10.5",
+      "type_equipement": "INDIVIDUEL"
+    }
+  },
+
+  {
+    "model": "app.equipementindividuel",
+    "pk": 1,
+    "fields": {
+      "equipement": 1,
+      "type": "PC",
+      "date_affectation": "2023-09-05",
+      "date_mise_en_service": "2023-09-10",
+      "proprietaire": 1
+    }
+  },
+
+  {
+    "model": "app.equipement",
+    "pk": 2,
+    "fields": {
+      "designation": "Switch réseau étage 1",
+      "fabriquant": "Cisco",
+      "modele": "Catalyst 2960",
+      "etat": "DISPO",
+      "destination": "Réseau",
+      "localisation": "Salle serveur",
+      "date_livraison": "2022-12-15",
+      "duree_garantie": 60,
+      "ip": "192.168.1.10",
+      "type_equipement": "RESEAU"
+    }
+  },
+
+  {
+    "model": "app.equipementreseau",
+    "pk": 2,
+    "fields": {
+      "equipement": 2,
+      "type": "SWITCH",
+      "adresse_mac": "00:1A:2B:3C:4D:5E",
+      "service_attribue": 1
+    }
+  }
+]

@@ -1,0 +1,32 @@
+ body {
+            background-color: #F4F4F4;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .login-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-top: 80px;
+        }
+        .login-title {
+            color: #007A33;
+            font-weight: bold;
+        }
+        .btn-ocp {
+            background-color: #007A33;
+            color: white;
+        }
+        .btn-ocp:hover {
+            background-color: #005C25;
+        }
+        .text-muted-custom {
+            color: #555555;
+        }
+        .link-create {
+            color: #007A33;
+            font-weight: 500;
+        }
+        .link-create:hover {
+            color: #A6CE39;
+        }
