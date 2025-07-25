@@ -3,240 +3,44 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ajouter un équipement</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .card-header {
-            background-color: #e9ecef;
-            font-weight: bold;
-        }
-        .sous-form {
-            display: none;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .required-field:after {
-            content: " *";
-            color: red;
-        }
-        .invalid-feedback {
-            display: none;
-            color: #dc3545;
-        }
-        .is-invalid ~ .invalid-feedback {
-            display: block;
-        }
-    </style>
 </head>
-<body>
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <h2 class="mb-4 text-center">Ajouter un équipement</h2>
-                
-                <!-- Affichage des messages -->
-                {% if messages %}
-                <div class="mb-4">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
+<body class="bg-light text-dark">
 
-                <form method="post" id="equipementForm" novalidate>
-                    {% csrf_token %}
+<div class="container mt-5">
+    <h2>Ajouter un Équipement</h2>
 
-                    <!-- Type d'équipement -->
-                    <div class="card mb-4">
-                        <div class="card-header">Type d'équipement</div>
-                        <div class="card-body">
-                            {{ type_form.type_equipement }}
-                            <div class="invalid-feedback">
-                                {% for error in type_form.type_equipement.errors %}
-                                    {{ error }}
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Informations de base -->
-                    <div class="card mb-4">
-                        <div class="card-header">Informations de base</div>
-                        <div class="card-body">
-                            {% for field in base_form %}
-                                <div class="mb-3">
-                                    <label for="{{ field.id_for_label }}" class="form-label {% if field.field.required %}required-field{% endif %}">
-                                        {{ field.label }}
-                                    </label>
-                                    {{ field }}
-                                    <div class="invalid-feedback">
-                                        {% for error in field.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                    {% if field.help_text %}
-                                        <small class="form-text text-muted">{{ field.help_text }}</small>
-                                    {% endif %}
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Formulaires spécifiques -->
-                    <div id="form_individuel" class="sous-form card mb-4">
-                        <div class="card-header">Détails - Équipement Individuel</div>
-                        <div class="card-body">
-                            {% for field in spec_forms.INDIVIDUEL %}
-                                <div class="mb-3">
-                                    <label for="{{ field.id_for_label }}" class="form-label {% if field.field.required %}required-field{% endif %}">
-                                        {{ field.label }}
-                                    </label>
-                                    {{ field }}
-                                    <div class="invalid-feedback">
-                                        {% for error in field.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div id="form_departemental" class="sous-form card mb-4">
-                        <div class="card-header">Détails - Équipement Départemental</div>
-                        <div class="card-body">
-                            {% for field in spec_forms.DEPARTEMENTAL %}
-                                <div class="mb-3">
-                                    <label for="{{ field.id_for_label }}" class="form-label {% if field.field.required %}required-field{% endif %}">
-                                        {{ field.label }}
-                                    </label>
-                                    {{ field }}
-                                    <div class="invalid-feedback">
-                                        {% for error in field.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div id="form_reseau" class="sous-form card mb-4">
-                        <div class="card-header">Détails - Équipement Réseau</div>
-                        <div class="card-body">
-                            {% for field in spec_forms.RESEAU %}
-                                <div class="mb-3">
-                                    <label for="{{ field.id_for_label }}" class="form-label {% if field.field.required %}required-field{% endif %}">
-                                        {{ field.label }}
-                                    </label>
-                                    {{ field }}
-                                    <div class="invalid-feedback">
-                                        {% for error in field.errors %}
-                                            {{ error }}
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary btn-lg">Ajouter l'équipement</button>
-                        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-lg ms-2">Annuler</a>
-                    </div>
-                </form>
+    <!-- ✅ Affichage des messages (erreurs / succès) -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
             </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+
+        <div class="mb-3">
+            {{ type_form.as_p }}
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Gestion des sous-formulaires
-            const typeSelect = document.querySelector("select[name='type_equipement']");
-            const forms = {
-                'INDIVIDUEL': document.getElementById("form_individuel"),
-                'DEPARTEMENTAL': document.getElementById("form_departemental"),
-                'RESEAU': document.getElementById("form_reseau")
-            };
+        <div class="mb-3">
+            {{ base_form.as_p }}
+        </div>
 
-            function showForm(type) {
-                Object.values(forms).forEach(form => form.style.display = "none");
-                if (type in forms) forms[type].style.display = "block";
-            }
+        <!-- ✅ Formulaire spécifique -->
+        {% if spec_form %}
+            <div class="mb-3">
+                {{ spec_form.as_p }}
+            </div>
+        {% endif %}
 
-            typeSelect.addEventListener("change", function() {
-                showForm(this.value);
-            });
+        <button type="submit" class="btn btn-success">Ajouter</button>
+    </form>
+</div>
 
-            // Validation des dates avant soumission
-            document.getElementById("equipementForm").addEventListener("submit", function(e) {
-                let isValid = true;
-                const today = new Date().toISOString().split('T')[0];
-                
-                // Validation des champs requis
-                document.querySelectorAll('[required]').forEach(field => {
-                    if (!field.value) {
-                        field.classList.add('is-invalid');
-                        isValid = false;
-                    }
-                });
-
-                // Validation spécifique des dates
-                document.querySelectorAll('input[type="date"]').forEach(field => {
-                    if (field.value && field.value > today) {
-                        field.classList.add('is-invalid');
-                        field.nextElementSibling.textContent = "La date ne peut pas être dans le futur";
-                        isValid = false;
-                    }
-                });
-
-                // Validation de l'adresse IP si remplie
-                const ipField = document.querySelector('input[name="ip"]');
-                if (ipField && ipField.value) {
-                    const ipPattern = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-                    if (!ipPattern.test(ipField.value)) {
-                        ipField.classList.add('is-invalid');
-                        ipField.nextElementSibling.textContent = "Format IP invalide (ex: 192.168.1.1)";
-                        isValid = false;
-                    }
-                }
-
-                if (!isValid) {
-                    e.preventDefault();
-                    // Faire défiler jusqu'au premier champ invalide
-                    const firstInvalid = document.querySelector('.is-invalid');
-                    if (firstInvalid) {
-                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-            });
-
-            // Réinitialiser la validation quand l'utilisateur corrige
-            document.querySelectorAll('input, select').forEach(field => {
-                field.addEventListener('input', function() {
-                    this.classList.remove('is-invalid');
-                });
-            });
-
-            // Initialisation
-            if (typeSelect.value) showForm(typeSelect.value);
-            
-            // Ajout des attributs de validation HTML5
-            document.querySelectorAll('input[type="date"]').forEach(field => {
-                field.setAttribute('max', new Date().toISOString().split('T')[0]);
-            });
-        });
-    </script>
 </body>
 </html>
