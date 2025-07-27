@@ -62,12 +62,11 @@
     <a href="ajouter-equipement/" class="btn btn-ocp mb-3"> Ajouter un équipement</a>
     <a href="ajoututilisateur/" class="btn btn-ocp mb-3"> Ajouter un utilisateur</a>
     <a href="editer/" class="btn btn-ocp mb-3"> Modifier un utilisateur</a>
-    <a href="#" class="btn btn-ocp mb-3"> Identifier équipements à réformer</a>
-    <a href="#" class="btn btn-ocp mb-3"> Affecter équipement à un technicien</a>
-    <a href="#" class="btn btn-ocp mb-3"> Voir les équipement actif dans le parc </a>
-    <a href="#" class="btn btn-ocp mb-3"> Voir interventions par service</a>
-    <a href="#" class="btn btn-ocp mb-3"> Voir interventions par technicien</a>
-    <a href="#" class="btn btn-ocp mb-3"> Voir interventions par équipement</a>
+    <a href="{% url 'equipements_reformer' %}" class="btn btn-ocp mb-3"> Identifier équipements à réformer/ Affecter équipement à un technicien</a>
+    <a href="equipements/actifs/" class="btn btn-ocp mb-3"> Voir les équipement actif dans le parc </a>
+    <a href="interventions/service/details/" class="btn btn-ocp mb-3"> Voir interventions par service</a>
+    <a href="interventions/technicien/" class="btn btn-ocp mb-3"> Voir interventions par technicien</a>
+    <a href="interventions/equipement/" class="btn btn-ocp mb-3"> Voir interventions par équipement</a>
    <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger w-100">Se déconnecter</button>

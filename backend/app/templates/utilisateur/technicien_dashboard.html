@@ -3,88 +3,69 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Tableau de Bord Technicien</title>
+    <title>Tableau de bord - Techniciens</title>
+
+    <!-- ✅ Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- ✅ Style personnalisé -->
     <style>
         body {
-            background-color: #f5f9f6;
+            background-color: #f5fdf5;
+            color: #333;
             font-family: 'Segoe UI', sans-serif;
         }
-
-        .container {
-            background-color: #ffffff;
-            margin-top: 60px;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 128, 0, 0.1);
-        }
-
-        h2 {
-            color: #1b5e20;
+        .dashboard-title {
+            color: #2e7d32;
+            font-size: 2.2rem;
             font-weight: bold;
+            margin-top: 40px;
             margin-bottom: 30px;
             text-align: center;
         }
-
-        .btn-ocp {
-            background-color: #1b5e20;
-            border-color: #1b5e20;
-            color: white;
-            font-weight: bold;
-            width: 100%;
+        .table thead {
+            background-color: #d0f0d0;
         }
-
-        .btn-ocp:hover {
-            background-color: #2e7d32;
-            border-color: #2e7d32;
+        .table tbody tr:hover {
+            background-color: #eafbea;
         }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 60px;
-            background-color: #e8f5e9;
-        }
-
-        footer img {
-            height: 80px;
-            transition: transform 0.3s ease;
-        }
-
-        footer img:hover {
-            transform: scale(1.1);
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 30px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Contenu principal -->
-    <div class="container col-md-6">
+    <div class="container">
+        <h1 class="dashboard-title">Tableau de bord des tâches des techniciens</h1>
 
-        <h2>Tableau de Bord Technicien</h2>
-
-        <!-- Bouton Accueil -->
-        <form method="post" action="{% url 'home' %}" class="mb-3">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-secondary">Accueil</button>
-        </form>
-
-        <!-- Bouton vers les tâches affectées (à relier à la vue correcte) -->
-        <a href="#" class="btn btn-ocp mb-3">Voir les tâches affectées</a>
-
-        <!-- Bouton de déconnexion -->
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger w-100">Se déconnecter</button>
-        </form>
-
+        <table class="table table-bordered table-hover shadow-sm">
+            <thead class="table-success">
+                <tr>
+                    <th> Technicien</th>
+                    <th> Équipement</th>
+                    <th> Description</th>
+                    <th> Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tache in taches %}
+                    <tr>
+                        <td>{{ tache.technicien.utilisateur.username }}</td>
+                        <td>{{ tache.equipement.nom }}</td>
+                        <td>{{ tache.description }}</td>
+                        <td>{{ tache.date }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">Aucune tâche trouvée.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-
-    <!-- Pied de page avec logo OCP -->
-    <footer>
-        <img src="{% static 'images/ocp_logo.png' %}" alt="Logo OCP">
-    </footer>
 
 </body>
 </html>
-

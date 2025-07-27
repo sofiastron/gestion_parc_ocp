@@ -1,0 +1,57 @@
+
+{% load static %}
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#178a34;">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <img src="{% static 'images/ocp_logo.png' %}" alt="Logo OCP" height="40">
+      OCP Dashboard
+    </a>
+  </div>
+</nav>
+
+<main class="container my-5">
+  <h2 class="mb-4" style="color:#178a34;">🔧 Détail des interventions par service</h2>
+
+  {% for service, maint_list in interventions_par_service.items %}
+    <div class="card mb-4 shadow">
+      <div class="card-header" style="background:#178a34; color:#fff;">
+        <h4>{{ service }} ({{ maint_list|length }} intervention{{ maint_list|length|pluralize }})</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Équipement</th>
+                <th>Technicien</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for m in maint_list %}
+              <tr>
+                <td>{{ m.date|date:"Y-m-d H:i" }}</td>
+                <td>{{ m.equipement.designation }} ({{ m.equipement.get_type_equipement_display }})</td>
+                <td>{{ m.technicien.utilisateur.username }}</td>
+                <td>{{ m.description }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-muted">Aucune intervention disponible.</p>
+  {% endfor %}
+</main>
+
+<footer class="footer py-4 text-center" style="background-color:#178a34; color:#fff;">
+  &copy; {{ now.year }} OCP Group – Dashboard interne
+</footer>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

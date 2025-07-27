@@ -51,8 +51,14 @@ urlpatterns = [
         success_url='/login/'
     ), name='password_reset_confirm'),
 
-
-
+    path('equipements/reformer/', views.equipements_a_reformer, name='equipements_reformer'),
+    path('equipement/<int:equipement_id>/reformer/', views.reformer_equipement, name='reformer_equipement'),
+    path('dashboard/admin/equipements/actifs/', views.equipements_actifs_view, name='equipements_actifs'),
+    path('dashboard/admin/interventions/service/details/', 
+         views.details_interventions_par_service, 
+         name='interventions_details_par_service'),
+    path('dashboard/admin/interventions/technicien/', views.interventions_par_technicien, name='interventions_par_technicien'),
+    path('dashboard/admin/interventions/equipement/', views.interventions_par_equipement, name='interventions_par_equipement'),
 
 ]
 

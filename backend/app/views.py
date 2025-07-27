@@ -139,11 +139,20 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def home_view(request):
     return render(request, "utilisateur/home.html")
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Technicien, Maintenance
 
 
 @login_required
 def technicien_dashboard(request):
-    return render(request, "utilisateur/technicien_dashboard.html")
+    # On récupère toutes les tâches de maintenance avec les techniciens et équipements associés
+    taches = Maintenance.objects.select_related('technicien', 'equipement')
+
+    return render(request, 'utilisateur/technicien_dashboard.html', {
+        'taches': taches
+    })
+
 
 
 from django.shortcuts import render, redirect
@@ -312,3 +321,174 @@ def editer_utilisateur(request):
 
 def redirection_accueil(request):
     return redirect("login")
+
+
+from datetime import date, timedelta
+from django.shortcuts import render
+from .models import Equipement
+
+def equipements_a_reformer(request):
+    # Date limite : aujourd'hui - 5 ans
+    limite_reforme = date.today().replace(year=date.today().year - 5)
+    # Filtrer les équipements dont date_livraison est avant cette date
+    equipements_reformer = Equipement.objects.filter(date_livraison__lt=limite_reforme)
+
+    context = {
+        'equipements': equipements_reformer,
+        'limite_reforme': limite_reforme,
+    }
+    return render(request, 'utilisateur/equipements_reformer.html', context)
+  
+
+
+from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
+from django.utils import timezone
+from .models import Technicien, Equipement, Maintenance
+
+def reformer_equipement(request, equipement_id):
+    equipement = get_object_or_404(Equipement, id=equipement_id)
+    techniciens = Technicien.objects.select_related('utilisateur')
+
+    if request.method == "POST":
+        tech_id = request.POST.get("technicien_id")
+        groupe_affectation = request.POST.get("groupe_affectation")
+        responsabilites = request.POST.get("responsabilites")
+        nouvel_etat = request.POST.get("etat")  # récupération de l'état
+
+        technicien = get_object_or_404(Technicien, id=tech_id)
+
+        # Mise à jour du technicien
+        technicien.groupe_affectation = groupe_affectation
+        technicien.responsabilites = responsabilites
+        technicien.save()
+
+        # Mise à jour de l'état de l'équipement
+        if nouvel_etat in dict(Equipement._meta.get_field('etat').choices):
+            equipement.etat = nouvel_etat
+            equipement.save()
+        else:
+            messages.error(request, "État invalide sélectionné.")
+
+        # Ajout d'une entrée de maintenance pour trace
+        Maintenance.objects.create(
+            equipement=equipement,
+            technicien=technicien,
+            date=timezone.now(),
+            description=f"Réforme de l'équipement par {technicien.utilisateur.username}, état changé en {nouvel_etat}"
+        )
+
+        messages.success(request, f"{technicien.utilisateur.username} affecté à la réforme. État mis à jour.")
+        return redirect('reformer_equipement', equipement_id=equipement.id)
+
+    return render(request, 'utilisateur/reformer.html', {
+        'equipement': equipement,
+        'techniciens': techniciens,
+        'etat_choices': Equipement._meta.get_field('etat').choices,  # envoyer les choix au template
+    })
+
+
+from .models import Equipement
+
+def equipements_actifs_view(request):
+    equipements_actifs = Equipement.objects.filter(etat='DISPO')
+    return render(request, 'utilisateur/actifs.html', {'equipements': equipements_actifs})
+from django.shortcuts import render
+from django.db.models import Prefetch
+from .models import Maintenance, Service
+
+def details_interventions_par_service(request):
+    # charger toutes les interventions avec équipement + technicien
+    maints = Maintenance.objects.select_related(
+        'technicien__utilisateur',
+        'equipement'
+    ).prefetch_related(
+        'equipement__departemental__service_attribue',
+        'equipement__reseau__service_attribue'
+    )
+
+    # regrouper manuellement
+    data = {}
+    for m in maints:
+        srv = (m.equipement.departemental.service_attribue
+               or m.equipement.reseau.service_attribue)
+        if not srv:
+            continue
+        nom = srv.nom
+        data.setdefault(nom, []).append(m)
+
+    return render(request,
+                  'interventions/details_par_service.html',
+                  {'interventions_par_service': data})
+from django.shortcuts import render
+from django.db.models import Count
+from .models import Maintenance, Technicien
+
+def interventions_par_technicien(request):
+    # Comptage des interventions par technicien
+    stats = (
+        Maintenance.objects
+        .values('technicien__id', 'technicien__utilisateur__username')
+        .annotate(total=Count('id'))
+        .order_by('-total')
+    )
+
+    # Préparer un dict : technicien → total & détails
+    data = {}
+    for st in stats:
+        tech_id = st['technicien__id']
+        nom = st['technicien__utilisateur__username']
+        data[tech_id] = {'username': nom, 'total': st['total'], 'maintenances': []}
+
+    # Récupérer toutes les maintenances avec relations
+    maints = Maintenance.objects.select_related(
+        'technicien__utilisateur', 'equipement'
+    ).prefetch_related(
+        'equipement__departemental__service_attribue',
+        'equipement__reseau__service_attribue'
+    )
+
+    for m in maints:
+        tech = m.technicien
+        if tech and tech.id in data:
+            data[tech.id]['maintenances'].append(m)
+
+    return render(request,
+                  'interventions/par_technicien.html',
+                  {'data': data})
+
+
+from django.shortcuts import render
+from django.db.models import Count
+from .models import Maintenance, Equipement
+
+def interventions_par_equipement(request):
+    # Statistiques : nombre d'interventions par équipement
+    stats = (
+        Maintenance.objects
+        .values('equipement__id', 'equipement__designation')
+        .annotate(total=Count('id'))
+        .order_by('-total')
+    )
+
+    data = {}
+    for st in stats:
+        eq_id = st['equipement__id']
+        data[eq_id] = {
+            'designation': st['equipement__designation'],
+            'total': st['total'],
+            'maintenances': []
+        }
+
+    maints = Maintenance.objects.select_related(
+        'equipement', 'technicien__utilisateur'
+    )
+
+    for m in maints:
+        eq = m.equipement
+        if eq.id in data:
+            data[eq.id]['maintenances'].append(m)
+
+    return render(request,
+                  'interventions/par_equipement.html',
+                  {'data': data})
