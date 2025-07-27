@@ -2,45 +2,88 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <title>Équipements à réformer</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <title>Équipements à réformer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --green-ocp: #178a34;
+      --white: #ffffff;
+      --gray-bg: #f5f9f6;
+    }
+    body {
+      background: var(--gray-bg);
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+    }
+    h2 {
+      color: var(--green-ocp);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .table {
+      background-color: var(--white);
+      border-radius: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 128, 0, 0.1);
+    }
+    .table th, .table td {
+      vertical-align: middle;
+    }
+    .btn-warning {
+      background-color: #f57c00;
+      border-color: #f57c00;
+    }
+    .btn-warning:hover {
+      background-color: #e65100;
+      border-color: #e65100;
+    }
+    .table-responsive {
+      margin-top: 1rem;
+    }
+  </style>
 </head>
 <body>
-<div class="container mt-5">
-    <h2>Équipements à réformer (livrés avant {{ limite_reforme }})</h2>
-    <table class="table table-striped mt-4">
+
+  <div class="container">
+    <h2><i class="fas fa-tools me-2"></i>Équipements à réformer (livrés avant {{ limite_reforme }})</h2>
+
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered">
         <thead>
-            <tr>
-                <th>ID</th>
-                <th>Désignation</th>
-                <th>Type</th>
-                <th>Date Livraison</th>
-                <th>État</th>
-                <th>Actions</th>
-            </tr>
+          <tr>
+            <th>ID</th>
+            <th>Désignation</th>
+            <th>Type</th>
+            <th>Date Livraison</th>
+            <th>État</th>
+            <th>Actions</th>
+          </tr>
         </thead>
         <tbody>
-            {% for equipement in equipements %}
+          {% for equipement in equipements %}
             <tr>
-                <td>{{ equipement.id }}</td>
-                <td>{{ equipement.designation }}</td>
-                <td>{{ equipement.get_type_equipement_display }}</td>
-                <td>{{ equipement.date_livraison }}</td>
-                <td>{{ equipement.get_etat_display }}</td>
-                <td>
-                    <!-- Actions possibles -->
-                    <a href="{% url 'reformer_equipement' equipement.id %}" class="btn btn-sm btn-warning">Réformer</a>
-                </td>
+              <td>{{ equipement.id }}</td>
+              <td>{{ equipement.designation }}</td>
+              <td>{{ equipement.get_type_equipement_display }}</td>
+              <td>{{ equipement.date_livraison }}</td>
+              <td>{{ equipement.get_etat_display }}</td>
+              <td>
+                <a href="{% url 'reformer_equipement' equipement.id %}" class="btn btn-sm btn-warning">
+                  <i class="fas fa-wrench"></i> Réformer
+                </a>
+              </td>
             </tr>
-            {% empty %}
+          {% empty %}
             <tr>
-                <td colspan="6" class="text-center">Aucun équipement à réformer.</td>
+              <td colspan="6" class="text-center">Aucun équipement à réformer.</td>
             </tr>
-            {% endfor %}
+          {% endfor %}
         </tbody>
-    </table>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+      </table>
+    </div>
+  </div>
+
 </body>
 </html>

@@ -2,44 +2,86 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Ajouter un équipement</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Ajouter un Équipement</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --green-ocp: #178a34;
+      --white: #ffffff;
+      --gray-bg: #f5f9f6;
+    }
+    body {
+      background: var(--gray-bg);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2rem;
+    }
+    .form-container {
+      max-width: 700px;
+      margin: auto;
+      background: var(--white);
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: var(--green-ocp);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    .btn-success {
+      background-color: var(--green-ocp);
+      border-color: var(--green-ocp);
+    }
+    .btn-success:hover {
+      background-color: #0f4f24;
+      border-color: #0f4f24;
+    }
+    .alert {
+      border-radius: 0.5rem;
+    }
+  </style>
 </head>
-<body class="bg-light text-dark">
+<body>
 
-<div class="container mt-5">
-    <h2>Ajouter un Équipement</h2>
+<div class="form-container">
+  <h2><i class="fas fa-plus-circle me-2"></i>Ajouter un Équipement</h2>
 
-    <!-- ✅ Affichage des messages (erreurs / succès) -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                {{ message }}
-            </div>
-        {% endfor %}
+  <!-- ✅ Affichage des messages (erreurs / succès) -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <div class="mb-3">
+      {{ type_form.as_p }}
+    </div>
+
+    <div class="mb-3">
+      {{ base_form.as_p }}
+    </div>
+
+    {% if spec_form %}
+      <div class="mb-3">
+        {{ spec_form.as_p }}
+      </div>
     {% endif %}
 
-    <form method="post" novalidate>
-        {% csrf_token %}
-
-        <div class="mb-3">
-            {{ type_form.as_p }}
-        </div>
-
-        <div class="mb-3">
-            {{ base_form.as_p }}
-        </div>
-
-        <!-- ✅ Formulaire spécifique -->
-        {% if spec_form %}
-            <div class="mb-3">
-                {{ spec_form.as_p }}
-            </div>
-        {% endif %}
-
-        <button type="submit" class="btn btn-success">Ajouter</button>
-    </form>
+    <div class="text-center">
+      <button type="submit" class="btn btn-success px-4 py-2">
+        <i class="fas fa-check me-1"></i> Ajouter
+      </button>
+    </div>
+  </form>
 </div>
 
 </body>

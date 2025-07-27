@@ -174,7 +174,7 @@ class EquipementReseau(models.Model):
 
     def __str__(self):
         return f"Equipement Réseau: {self.equipement.designation}"
-
+ 
 
 # -----------------------------
 # MAINTENANCE

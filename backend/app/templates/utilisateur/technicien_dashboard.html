@@ -2,70 +2,75 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Tableau de bord - Techniciens</title>
-
-    <!-- ✅ Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- ✅ Style personnalisé -->
-    <style>
-        body {
-            background-color: #f5fdf5;
-            color: #333;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        .dashboard-title {
-            color: #2e7d32;
-            font-size: 2.2rem;
-            font-weight: bold;
-            margin-top: 40px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .table thead {
-            background-color: #d0f0d0;
-        }
-        .table tbody tr:hover {
-            background-color: #eafbea;
-        }
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            padding: 30px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Dashboard Technicien</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f0f9f1;
+      color: #1b5e20;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .container { background: #fffcc; border-radius:1rem; margin:2rem auto; padding:2rem; max-width:1000px; box-shadow:0 6px 15px rgba(23,138,52,0.2); }
+    .dashboard-title { font-size:2.5rem; font-weight:700; color:#178a34; text-align:center; margin-bottom:2rem; }
+    table { border-radius:0.8rem; overflow:hidden; box-shadow:0 4px 12px rgba(23,138,52,0.15); }
+    thead { background:#178a34; color:#fff; font-weight:600; }
+    tbody tr { transition: background-color .3s ease; }
+    tbody tr.available { background-color: #e8f5e9; }
+    tbody tr.panne { background-color: #fbe9e7; }
+    tbody tr.maintenance { background-color: #fffde7; }
+    .form-switch .form-check-input:checked { accent-color: #178a34; }
+    footer { background:#178a34; color:#fff; text-align:center; padding:1rem 0; margin-top:auto; font-weight:600; font-size:.9rem; }
+  </style>
 </head>
 <body>
-
-    <div class="container">
-        <h1 class="dashboard-title">Tableau de bord des tâches des techniciens</h1>
-
-        <table class="table table-bordered table-hover shadow-sm">
-            <thead class="table-success">
-                <tr>
-                    <th> Technicien</th>
-                    <th> Équipement</th>
-                    <th> Description</th>
-                    <th> Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for tache in taches %}
-                    <tr>
-                        <td>{{ tache.technicien.utilisateur.username }}</td>
-                        <td>{{ tache.equipement.nom }}</td>
-                        <td>{{ tache.description }}</td>
-                        <td>{{ tache.date }}</td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="4" class="text-center text-muted">Aucune tâche trouvée.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
+  <div class="container">
+    <h1 class="dashboard-title">Tâches technicien</h1>
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>Technicien</th><th>Équipement</th><th>Description</th><th>Date</th><th>État</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tache in taches %}
+        {% with status=tache.equipement.etat %}
+        <tr class="{{ status|lower }}">
+          <td>{{ tache.technicien.utilisateur.username }}</td>
+          <td>{{ tache.equipement.designation }}</td>
+          <td>{{ tache.description }}</td>
+          <td>{{ tache.date }}</td>
+          <td>
+            <form method="post" action="{% url 'changer_etat' tache.id %}">
+              {% csrf_token %}
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox"
+                       name="toggle_etat" id="toggle{{ forloop.counter }}"
+                       value="DISPO" {% if tache.equipement.etat == 'DISPO' %}checked{% endif %}
+                       onchange="this.form.submit()">
+                <label class="form-check-label" for="toggle{{ forloop.counter }}">
+                  {% if tache.equipement.etat == 'DISPO' %}
+                     Disponible
+                  {% elif tache.equipement.etat == 'EN_PANNE' %}
+                     En panne
+                  {% else %}
+                     En maintenance
+                  {% endif %}
+                </label>
+              </div>
+            </form>
+          </td>
+        </tr>
+        {% endwith %}
+        {% empty %}
+        <tr><td colspan="5" class="text-center fst-italic text-muted">Aucune tâche</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <footer>&copy; 2025 OCP Group – Tous droits réservés</footer>
 </body>
 </html>

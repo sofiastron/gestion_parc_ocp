@@ -5,54 +5,74 @@
     <meta charset="UTF-8">
     <title>Liste des Équipements</title>
 
-    <!-- ✅ Bootstrap CSS -->
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- ✅ Icônes Bootstrap -->
+    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- ✅ Style personnalisé -->
+    <!-- Style personnalisé -->
     <style>
         body {
-            background-color: #f4fff4;
-            color: #000;
+            background-color: #e8f5e9;
+            color: #1b5e20;
             font-family: 'Segoe UI', sans-serif;
         }
 
         .navbar {
-            background-color: #007a33;
+            background-color: #178a34;
         }
 
         .navbar-brand, .nav-link {
             color: white !important;
+            font-weight: 600;
         }
 
         h2 {
-            color: #007a33;
+            color: #178a34;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-shadow: 0 0 4px #a8d5a3;
         }
 
         footer {
             margin-top: 50px;
-            background-color: #007a33;
+            background-color: #178a34;
             color: white;
             padding: 15px;
             text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
 
         .btn-success {
-            background-color: #28a745;
-            border-color: #28a745;
+            background-color: #43a047;
+            border-color: #43a047;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-success:hover {
+            background-color: #2e7d32;
+            border-color: #2e7d32;
         }
 
         .table thead th {
-            background-color: #007a33;
+            background-color: #178a34;
             color: white;
+            font-weight: 600;
+        }
+
+        .badge {
+            font-weight: 600;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
 
-    <!-- ✅ Barre de navigation simple -->
+    <!-- Barre de navigation -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="#">Gestion Parc OCP</a>
@@ -60,16 +80,16 @@
     </nav>
 
     <div class="container mt-5">
-        <h2 class="mb-4">Liste des Équipements</h2>
+        <h2>Liste des Équipements</h2>
 
-        <div class="mb-3">
+        <div class="mb-3 text-center">
             <a href="{% url 'ajouter_equipement' %}" class="btn btn-success">
                 <i class="bi bi-plus-circle"></i> Ajouter un équipement
             </a>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
+        <div class="table-responsive shadow rounded bg-white p-3">
+            <table class="table table-striped table-hover mb-0 align-middle">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -100,31 +120,30 @@
                         </td>
                         <td>{{ equipement.localisation }}</td>
                         <td>
-                            <!-- Placeholder action -->
-                            <a href="#" class="btn btn-outline-primary btn-sm disabled">
+                            <a href="#" class="btn btn-outline-primary btn-sm disabled" tabindex="-1" aria-disabled="true">
                                 <i class="bi bi-eye"></i> Voir
                             </a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="8" class="text-center">Aucun équipement enregistré</td>
+                        <td colspan="8" class="text-center text-muted fst-italic">Aucun équipement enregistré</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <!-- ✅ Pagination -->
+        <!-- Pagination -->
         {% if is_paginated %}
-        <nav aria-label="Page navigation">
+        <nav aria-label="Page navigation" class="mt-4">
             <ul class="pagination justify-content-center">
                 {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page=1">&laquo;&laquo;</a>
+                    <a class="page-link" href="?page=1" aria-label="Première page">&laquo;&laquo;</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Page précédente">&laquo;</a>
                 </li>
                 {% endif %}
 
@@ -136,10 +155,10 @@
 
                 {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Page suivante">&raquo;</a>
                 </li>
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">&raquo;&raquo;</a>
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Dernière page">&raquo;&raquo;</a>
                 </li>
                 {% endif %}
             </ul>
@@ -147,12 +166,13 @@
         {% endif %}
     </div>
 
-    <!-- ✅ Pied de page -->
+    <!-- Pied de page -->
     <footer>
         &copy; 2025 OCP - Gestion du parc informatique
     </footer>
 
-    <!-- ✅ Bootstrap JS -->
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
+

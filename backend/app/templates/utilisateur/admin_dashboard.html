@@ -1,83 +1,143 @@
 {% load static %}
+
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Tableau de Bord Administrateur</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        
-        footer {
-            text-align: center;
-            padding: 20px;
-            margin-top: 60px;
-            background-color: #e8f5e9;
-        }
-
-        body {
-            background-color: #f5f9f6;
-            font-family: 'Segoe UI', sans-serif;
-        }
-
-        .container {
-            background-color: #ffffff;
-            margin-top: 60px;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 128, 0, 0.1);
-        }
-
-        h2 {
-            color: #1b5e20;
-            font-weight: bold;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .btn-ocp {
-            background-color: #1b5e20;
-            border-color: #1b5e20;
-            color: white;
-            font-weight: bold;
-            width: 100%;
-        }
-
-        .btn-ocp:hover {
-            background-color: #2e7d32;
-            border-color: #2e7d32;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Dashboard Admin OCP</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --green-ocp: #178a34;
+      --white: #ffffff;
+      --gray-bg: #f5f9f6;
+    }
+    body { background: var(--gray-bg); font-family: 'Segoe UI', sans-serif; margin: 0; }
+    nav.sidebar { width: 240px; background: var(--green-ocp); position: fixed; top:0; bottom:0; padding-top:1rem; color:#fff; }
+    nav.sidebar a { color:#fff; padding:.75rem 1rem; display:block; text-decoration:none; }
+    nav.sidebar a:hover { background:#0f4f24; }
+    .main { margin-left: 240px; padding:1rem 2rem; }
+    .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,.1); transition:.3s; }
+  </style>
 </head>
 <body>
-     <!-- Bouton Accueil -->
-        <form method="post" action="{% url 'home' %}" class="mb-3">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-secondary">Accueil</button>
-        </form>
+  <nav class="sidebar">
+    <div class="text-center mb-4">
+      <img src="{% static 'images/ocp_logo.png' %}" alt="Logo OCP" height="50">
+    </div>
+    <form method="post" action="{% url 'home' %}" class="px-3 mb-3">{% csrf_token %}
+      <button type="submit" class="btn btn-outline-light w-100">
+        <i class="fas fa-home me-2"></i>Accueil
+      </button>
+    </form>
+    <a href="ajouter-equipement/"><i class="fas fa-plus me-2"></i>Ajouter un équipement</a>
+    <a href="ajoututilisateur/"><i class="fas fa-user-plus me-2"></i>Ajouter un utilisateur</a>
+    <a href="editer/"><i class="fas fa-edit me-2"></i>Modifier un utilisateur</a>
+    <a href="{% url 'equipements_reformer' %}"><i class="fas fa-tools me-2"></i>Identifier équipements à réformer / Affecter équipement</a>
+    <a href="equipements/actifs/"><i class="fas fa-desktop me-2"></i>Voir équipements actifs</a>
+    <a href="interventions/service/details/"><i class="fas fa-building me-2"></i>Voir interventions par service</a>
+    <a href="interventions/technicien/"><i class="fas fa-user-cog me-2"></i>Voir interventions par technicien</a>
+    <a href="interventions/equipement/"><i class="fas fa-tools me-2"></i>Voir interventions par équipement</a>
+    <form method="post" action="{% url 'logout' %}" class="px-3 mt-3">{% csrf_token %}
+      <button type="submit" class="btn btn-danger w-100">
+        <i class="fas fa-sign-out-alt me-2"></i>Se déconnecter
+      </button>
+    </form>
+  </nav>
 
+  <div class="main">
+    <nav class="navbar navbar-light bg-white mb-4 shadow-sm">
+      <div class="container-fluid">
+        <span class="navbar-brand h4" style="color: var(--green-ocp);">Dashboard Administrateur</span>
+      </div>
+    </nav>
 
-<div class="container col-md-6">
-    <h2>Tableau de Bord Administrateur</h2>
+    <section class="row mb-4">
+      <div class="col-md-6 mb-3">
+        <div class="card card-hover text-center">
+          <div class="card-body">
+            <h5>Total équipements</h5>
+            <h2 id="totalEquip">–</h2>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <div class="card card-hover text-center">
+          <div class="card-body">
+            <h5>Total interventions</h5>
+            <h2 id="totalMaint">–</h2>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <a href="ajouter-equipement/" class="btn btn-ocp mb-3"> Ajouter un équipement</a>
-    <a href="ajoututilisateur/" class="btn btn-ocp mb-3"> Ajouter un utilisateur</a>
-    <a href="editer/" class="btn btn-ocp mb-3"> Modifier un utilisateur</a>
-    <a href="{% url 'equipements_reformer' %}" class="btn btn-ocp mb-3"> Identifier équipements à réformer/ Affecter équipement à un technicien</a>
-    <a href="equipements/actifs/" class="btn btn-ocp mb-3"> Voir les équipement actif dans le parc </a>
-    <a href="interventions/service/details/" class="btn btn-ocp mb-3"> Voir interventions par service</a>
-    <a href="interventions/technicien/" class="btn btn-ocp mb-3"> Voir interventions par technicien</a>
-    <a href="interventions/equipement/" class="btn btn-ocp mb-3"> Voir interventions par équipement</a>
-   <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-danger w-100">Se déconnecter</button>
-   </form>
-</div>
-    
+    <section class="row mb-5">
+      <div class="col-lg-6 mb-4">
+        <div class="card card-hover">
+          <div class="card-header bg-success text-white">Interventions par service</div>
+          <div class="card-body">
+            <canvas id="chartService"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-4">
+        <div class="card card-hover">
+          <div class="card-header bg-success text-white">Top techniciens</div>
+          <div class="card-body">
+            <canvas id="chartTech"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="text-center py-3" style="background: var(--white); border-top:1px solid #ddd;">
+    &copy; 2025 OCP Group – Admin Dashboard
+  </footer>
+
+  <!-- Injection sécurisée des données -->
+  {{ service_labels|json_script:"lbl_service" }}
+  {{ service_data|json_script:"val_service" }}
+  {{ tech_labels|json_script:"lbl_tech" }}
+  {{ tech_data|json_script:"val_tech" }}
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const serviceLabels = JSON.parse(document.getElementById('lbl_service').textContent);
+    const serviceData = JSON.parse(document.getElementById('val_service').textContent);
+    const techLabels = JSON.parse(document.getElementById('lbl_tech').textContent);
+    const techData = JSON.parse(document.getElementById('val_tech').textContent);
+
+    document.getElementById('totalEquip').innerText = {{ total_equipements }};
+    document.getElementById('totalMaint').innerText = {{ total_maintenances }};
+
+    new Chart(document.getElementById('chartService'), {
+      type: 'bar',
+      data: {
+        labels: serviceLabels,
+        datasets: [{
+          label: 'Interventions',
+          data: serviceData,
+          backgroundColor: '#178a34'
+        }]
+      },
+      options: { responsive: true }
+    });
+
+    new Chart(document.getElementById('chartTech'), {
+      type: 'bar',
+      data: {
+        labels: techLabels,
+        datasets: [{
+          label: 'Interventions',
+          data: techData,
+          backgroundColor: '#178a34'
+        }]
+      },
+      options: { responsive: true }
+    });
+  </script>
 </body>
-
-
-<footer>
-    <img src="{% static 'images/ocp_logo.png' %}" alt="Logo OCP" >
-</footer>
-
 </html>

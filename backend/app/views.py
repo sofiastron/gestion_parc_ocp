@@ -123,13 +123,6 @@ def login_view(request):
     return render(request, "utilisateur/login.html", {"form": form})
 
 
-from django.contrib.auth.decorators import login_required
-
-
-
-@login_required
-def admin_dashboard(request):
-    return render(request, "utilisateur/admin_dashboard.html")
 
 
 from django.shortcuts import render
@@ -152,6 +145,17 @@ def technicien_dashboard(request):
     return render(request, 'utilisateur/technicien_dashboard.html', {
         'taches': taches
     })
+@login_required
+def changer_etat(request, tache_id):
+    tache = get_object_or_404(Maintenance, id=tache_id, technicien__utilisateur=request.user)
+    equip = tache.equipement
+    if request.method == 'POST':
+        new = request.POST.get('toggle_etat')
+        # par exemple, si coché => DISPO, sinon maintenance ou panne selon logique
+        equip.etat = new
+        equip.save(update_fields=['etat'])
+    return redirect('technicien_dashboard')
+
 
 
 
@@ -492,3 +496,36 @@ def interventions_par_equipement(request):
     return render(request,
                   'interventions/par_equipement.html',
                   {'data': data})
+
+
+from django.shortcuts import render
+from django.db.models import Count
+from .models import Maintenance, Equipement
+
+
+@login_required
+
+def dashboard_admin(request):
+    # Statistiques des interventions par service
+    qs_service = Maintenance.objects.filter(
+        equipement__departemental__service_attribue__isnull=False
+    ).values('equipement__departemental__service_attribue__nom').annotate(total=Count('id'))
+    services_labels = [item['equipement__departemental__service_attribue__nom'] for item in qs_service]
+    services_data = [item['total'] for item in qs_service]
+
+    # Statistiques des interventions par technicien
+    qs_tech = Maintenance.objects.values('technicien__utilisateur__username').annotate(total=Count('id'))
+    tech_labels = [item['technicien__utilisateur__username'] or 'Inconnu' for item in qs_tech]
+    tech_data = [item['total'] for item in qs_tech]
+
+    total_maintenances = Maintenance.objects.count()
+    total_equipements = Equipement.objects.count()
+
+    return render(request, 'utilisateur/admin_dashboard.html', {
+        'services_labels': services_labels,
+        'services_data': services_data,
+        'tech_labels': tech_labels,
+        'tech_data': tech_data,
+        'total_maintenances': total_maintenances,
+        'total_equipements': total_equipements,
+    })
