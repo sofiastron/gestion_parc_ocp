@@ -1,0 +1,7 @@
+{% load static %}
+<h2>Vérification d'identité</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Valider</button>
+</form>

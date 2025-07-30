@@ -42,16 +42,10 @@ urlpatterns = [
     path('dashboard/admin/editer/', views.editer_utilisateur, name='editer_utilisateur'),
     path('dashboard/admin/ajoututilisateur/', views.inscrire_utilisateur1, name='ajouter-utilisateur'),
     path('login/', login_view, name='login'),
-     path('reset-password/', auth_views.PasswordResetView.as_view(
-        template_name='utilisateur/reset_password.html',
-        email_template_name='utilisateur/reset_password_email.html',
-        success_url='/login/'  # rediriger vers la page de connexion après l'envoi
-    ), name='reset_password'),
-     # Étape 2 : lien dans l'email mène ici (avec uid et token)
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
-        template_name='utilisateur/reset_password_confirm.html',
-        success_url='/login/'
-    ), name='password_reset_confirm'),
+
+    path('demande-mdp/', views.demande_changement_mdp, name='demande_changement_mdp'),
+    path('changer-mdp/', views.changer_mot_de_passe, name='changer_mot_de_passe'),
+
 
     path('equipements/reformer/', views.equipements_a_reformer, name='equipements_reformer'),
     path('equipement/<int:equipement_id>/reformer/', views.reformer_equipement, name='reformer_equipement'),

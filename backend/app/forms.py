@@ -176,3 +176,10 @@ class DemandeInterventionForm(forms.Form):
 
 
 
+# forms.py
+from django import forms
+
+class DemandeChangementMDPForm(forms.Form):
+    username = forms.CharField(label="Nom d'utilisateur")
+    matricule = forms.CharField(label="Matricule")
+    email = forms.EmailField(label="Email")

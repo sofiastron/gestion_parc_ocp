@@ -118,6 +118,54 @@ def login_view(request):
     return render(request, "utilisateur/login.html", {"form": form})
 
 
+# views.py
+from django.contrib.auth import get_user_model
+from django.shortcuts import render, redirect
+from .forms import DemandeChangementMDPForm
+from django.contrib import messages
+
+Utilisateur = get_user_model()
+
+def demande_changement_mdp(request):
+    if request.method == "POST":
+        form = DemandeChangementMDPForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            matricule = form.cleaned_data['matricule']
+
+            try:
+                user = Utilisateur.objects.get(username=username, email=email, matricule=matricule)
+                request.session['user_id_reset'] = user.id  # sauvegarder temporairement
+                return redirect('changer_mot_de_passe')
+            except Utilisateur.DoesNotExist:
+                messages.error(request, "Aucun utilisateur ne correspond à ces informations.")
+    else:
+        form = DemandeChangementMDPForm()
+
+    return render(request, 'utilisateur/demande_changement_mdp.html', {'form': form})
+
+from django.contrib.auth.hashers import make_password
+
+def changer_mot_de_passe(request):
+    if 'user_id_reset' not in request.session:
+        return redirect('demande_changement_mdp')
+
+    if request.method == 'POST':
+        motdepasse = request.POST.get('motdepasse')
+        confirmer = request.POST.get('confirmer')
+
+        if motdepasse != confirmer:
+            messages.error(request, "Les mots de passe ne correspondent pas.")
+        else:
+            user = Utilisateur.objects.get(id=request.session['user_id_reset'])
+            user.password = make_password(motdepasse)
+            user.save()
+            del request.session['user_id_reset']
+            messages.success(request, "Mot de passe mis à jour avec succès. Vous pouvez maintenant vous connecter.")
+            return redirect('login')
+
+    return render(request, 'utilisateur/changer_mot_de_passe.html')
 
 
 from django.shortcuts import render
@@ -177,17 +225,6 @@ def dashboard_technicien(request):
 #             equip.save(update_fields=['etat'])
 #     return redirect('technicien_dashboard')
 
-
-
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from .forms import (
-    TypeEquipementForm,
-    EquipementBaseForm,
-    EquipementIndividuelForm,
-    EquipementDepartementalForm,
-    EquipementReseauForm,
-)
 
 
 from django.shortcuts import render, redirect

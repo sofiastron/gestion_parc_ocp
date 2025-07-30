@@ -1,0 +1,8 @@
+{% load static %}
+<h2>Nouveau mot de passe</h2>
+<form method="post">
+  {% csrf_token %}
+  <input type="password" name="motdepasse" placeholder="Nouveau mot de passe" required><br>
+  <input type="password" name="confirmer" placeholder="Confirmer mot de passe" required><br>
+  <button type="submit">Changer</button>
+</form>
