@@ -60,7 +60,17 @@ urlpatterns = [
          views.details_interventions_par_service, 
          name='interventions_details_par_service'),
     path('dashboard/admin/interventions/technicien/', views.interventions_par_technicien, name='interventions_par_technicien'),
+    
     path('dashboard/admin/interventions/equipement/', views.interventions_par_equipement, name='interventions_par_equipement'),
+    path('dashboard/admin/interventions/assigner/<int:maintenance_id>/', views.assigner_technicien, name='assigner_technicien'),
+
+    
+    path('home/equipements/individuels/', views.liste_equipements_individuels, name='liste_equipements_individuels'),
+
+    path('home/equipements/departementaux/', views.liste_equipements_departementaux, name='liste_equipements_departementaux'),
+ 
+    path('home/equipements/reseau/', views.liste_equipements_reseau, name='liste_equipements_reseau'),
+
 
 ]
 

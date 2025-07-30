@@ -179,6 +179,7 @@ class EquipementReseau(models.Model):
 # -----------------------------
 # MAINTENANCE
 # -----------------------------
+
 class Maintenance(models.Model):
     equipement = models.ForeignKey(Equipement, on_delete=models.CASCADE, related_name='maintenances')
     technicien = models.ForeignKey(Technicien, on_delete=models.SET_NULL, null=True, related_name='maintenances')

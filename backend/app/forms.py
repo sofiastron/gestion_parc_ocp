@@ -2,12 +2,10 @@ from django import forms
 from .models import Utilisateur, Service
 from django.contrib.auth.forms import AuthenticationForm
 from .models import Utilisateur, Role
+from django import forms
+from .models import Utilisateur, Role, Service
+
 class UtilisateurForm(forms.ModelForm):
-   
-
- 
-
-    # ✅ Affiche les rôles disponibles à partir de la base
     role = forms.ModelChoiceField(
         queryset=Role.objects.all(),
         label='Rôle',
@@ -164,6 +162,17 @@ class UtilisateurForm1(forms.ModelForm):
             if nouveau != confirmer:
                 raise forms.ValidationError("Les nouveaux mots de passe ne correspondent pas.")
 
+
+
+from django import forms
+
+class DemandeInterventionForm(forms.Form):
+    equipement_id = forms.IntegerField(widget=forms.HiddenInput)
+    description = forms.CharField(
+        label="Description de la panne ou du problème",
+        widget=forms.Textarea(attrs={'rows':3}),
+        max_length=500
+    )
 
 
 

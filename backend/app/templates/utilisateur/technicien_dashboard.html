@@ -19,10 +19,9 @@
     table { border-radius:0.8rem; overflow:hidden; box-shadow:0 4px 12px rgba(23,138,52,0.15); }
     thead { background:#178a34; color:#fff; font-weight:600; }
     tbody tr { transition: background-color .3s ease; }
-    tbody tr.available { background-color: #e8f5e9; }
-    tbody tr.panne { background-color: #fbe9e7; }
+    tbody tr.dispo { background-color: #e8f5e9; }
+    tbody tr.en_panne { background-color: #fbe9e7; }
     tbody tr.maintenance { background-color: #fffde7; }
-    .form-switch .form-check-input:checked { accent-color: #178a34; }
     footer { background:#178a34; color:#fff; text-align:center; padding:1rem 0; margin-top:auto; font-weight:600; font-size:.9rem; }
   </style>
 </head>
@@ -46,21 +45,11 @@
           <td>
             <form method="post" action="{% url 'changer_etat' tache.id %}">
               {% csrf_token %}
-              <div class="form-check form-switch">
-                <input class="form-check-input" type="checkbox"
-                       name="toggle_etat" id="toggle{{ forloop.counter }}"
-                       value="DISPO" {% if tache.equipement.etat == 'DISPO' %}checked{% endif %}
-                       onchange="this.form.submit()">
-                <label class="form-check-label" for="toggle{{ forloop.counter }}">
-                  {% if tache.equipement.etat == 'DISPO' %}
-                     Disponible
-                  {% elif tache.equipement.etat == 'EN_PANNE' %}
-                     En panne
-                  {% else %}
-                     En maintenance
-                  {% endif %}
-                </label>
-              </div>
+              <select name="etat" onchange="this.form.submit()" class="form-select">
+                <option value="DISPO" {% if tache.equipement.etat == 'DISPO' %}selected{% endif %}>Disponible</option>
+                <option value="EN_PANNE" {% if tache.equipement.etat == 'EN_PANNE' %}selected{% endif %}>En panne</option>
+                <option value="MAINTENANCE" {% if tache.equipement.etat == 'MAINTENANCE' %}selected{% endif %}>Maintenance</option>
+              </select>
             </form>
           </td>
         </tr>

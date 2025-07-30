@@ -1,4 +1,3 @@
-
 {% load static %}
 {% block content %}
 <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#178a34;">
@@ -36,10 +35,8 @@
                   <td>{{ m.date|date:"Y-m-d H:i" }}</td>
                   <td>{{ m.equipement.designation }} ({{ m.equipement.get_type_equipement_display }})</td>
                   <td>
-                    {% if m.equipement.departemental %}
-                      {{ m.equipement.departemental.service_attribue.nom }}
-                    {% elif m.equipement.reseau %}
-                      {{ m.equipement.reseau.service_attribue.nom }}
+                    {% if m.technicien and m.technicien.utilisateur.service %}
+                      {{ m.technicien.utilisateur.service.nom }}
                     {% else %}
                       —
                     {% endif %}

@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Équipements Individuels</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #f5f9f6; font-family: 'Segoe UI', sans-serif; }
+    .equip-card { transition: transform .2s; }
+    .equip-card:hover { transform: scale(1.02); box-shadow:0 4px 10px rgba(0,128,0,0.1); }
+    .btn-ocp { background:#178a34; color:#fff; }
+    .btn-ocp:hover { background:#145d28; }
+  </style>
+</head>
+<body>
+<div class="container py-5">
+  <h1 class="text-center mb-4" style="color:#178a34;">Équipements Individuels</h1>
+  <div class="row g-4">
+    {% for equip in equipements %}
+      <div class="col-md-4">
+        <div class="card equip-card p-3">
+          <h5>{{ equip.designation }}</h5>
+          <p><strong>Fabricant :</strong> {{ equip.fabriquant }}</p>
+          <p><strong>Modèle :</strong> {{ equip.modele }}</p>
+          <p><strong>État :</strong>
+            <span class="badge
+              {% if equip.etat == 'DISPO' %}bg-success
+              {% elif equip.etat == 'EN_PANNE' %}bg-danger
+              {% else %}bg-warning{% endif %}">
+              {{ equip.get_etat_display }}
+            </span>
+          </p>
+          <p><strong>Localisation :</strong> {{ equip.localisation }}</p>
+          {% if equip.etat != 'MAINTENANCE' %}
+            <button class="btn btn-ocp w-100" data-bs-toggle="modal" data-bs-target="#modal{{ equip.id }}">
+              Demander une intervention
+            </button>
+          {% else %}
+            <button class="btn btn-secondary w-100" disabled>Tâche ouverte</button>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Modal demande -->
+      <div class="modal fade" id="modal{{ equip.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <form method="post" action="">
+              {% csrf_token %}
+              <div class="modal-header">
+                <h5 class="modal-title">Demande d’intervention — {{ equip.designation }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <input type="hidden" name="equipement_id" value="{{ equip.id }}">
+                {{ form.description }}
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-ocp">Envoyer</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col">
+        <p class="text-center fst-italic text-muted">Aucun équipement individuel trouvé.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
