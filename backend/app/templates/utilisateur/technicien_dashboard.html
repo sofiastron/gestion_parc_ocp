@@ -1,65 +1,127 @@
+
 {% load static %}
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Dashboard Technicien</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
+
+{% block content %}
+<style>
     body {
-      background: #f0f9f1;
-      color: #1b5e20;
-      font-family: 'Segoe UI', sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+        background-color: #f8fdf8;
     }
-    .container { background: #fffcc; border-radius:1rem; margin:2rem auto; padding:2rem; max-width:1000px; box-shadow:0 6px 15px rgba(23,138,52,0.2); }
-    .dashboard-title { font-size:2.5rem; font-weight:700; color:#178a34; text-align:center; margin-bottom:2rem; }
-    table { border-radius:0.8rem; overflow:hidden; box-shadow:0 4px 12px rgba(23,138,52,0.15); }
-    thead { background:#178a34; color:#fff; font-weight:600; }
-    tbody tr { transition: background-color .3s ease; }
-    tbody tr.dispo { background-color: #e8f5e9; }
-    tbody tr.en_panne { background-color: #fbe9e7; }
-    tbody tr.maintenance { background-color: #fffde7; }
-    footer { background:#178a34; color:#fff; text-align:center; padding:1rem 0; margin-top:auto; font-weight:600; font-size:.9rem; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1 class="dashboard-title">Tâches technicien</h1>
-    <table class="table align-middle">
-      <thead>
-        <tr>
-          <th>Technicien</th><th>Équipement</th><th>Description</th><th>Date</th><th>État</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for tache in taches %}
-        {% with status=tache.equipement.etat %}
-        <tr class="{{ status|lower }}">
-          <td>{{ tache.technicien.utilisateur.username }}</td>
-          <td>{{ tache.equipement.designation }}</td>
-          <td>{{ tache.description }}</td>
-          <td>{{ tache.date }}</td>
-          <td>
-            <form method="post" action="{% url 'changer_etat' tache.id %}">
-              {% csrf_token %}
-              <select name="etat" onchange="this.form.submit()" class="form-select">
-                <option value="DISPO" {% if tache.equipement.etat == 'DISPO' %}selected{% endif %}>Disponible</option>
-                <option value="EN_PANNE" {% if tache.equipement.etat == 'EN_PANNE' %}selected{% endif %}>En panne</option>
-                <option value="MAINTENANCE" {% if tache.equipement.etat == 'MAINTENANCE' %}selected{% endif %}>Maintenance</option>
-              </select>
-            </form>
-          </td>
-        </tr>
-        {% endwith %}
-        {% empty %}
-        <tr><td colspan="5" class="text-center fst-italic text-muted">Aucune tâche</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <footer>&copy; 2025 OCP Group – Tous droits réservés</footer>
-</body>
-</html>
+
+    .dashboard-title {
+        color: #198754;
+        font-weight: 700;
+        font-size: 2rem;
+        border-left: 5px solid #198754;
+        padding-left: 10px;
+        animation: slideIn 0.6s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    .maintenance-item {
+        transition: all 0.3s ease;
+    }
+
+    .maintenance-item:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(25, 135, 84, 0.15);
+        background-color: #f4fff4;
+    }
+
+    .etat-badge {
+        font-size: 0.85rem;
+    }
+
+    .btn-primary {
+        background-color: #198754;
+        border-color: #198754;
+    }
+
+    .btn-primary:hover {
+        background-color: #146c43;
+        border-color: #146c43;
+    }
+
+    .bg-vert {
+        background-color: #198754;
+        color: white;
+    }
+
+</style>
+
+<div class="container mt-5">
+    <h2 class="dashboard-title mb-4">🛠️ Tableau de bord du technicien</h2>
+
+    {% if messages %}
+        <div class="alert alert-success fade show" role="alert">
+            {% for message in messages %}
+                <div>{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3"><i class="bi bi-person-badge-fill text-success"></i> Bonjour <strong>{{ technicien.utilisateur.get_full_name }}</strong></h5>
+            <p><i class="bi bi-people-fill"></i> <strong>Groupe d'affectation :</strong> {{ technicien.groupe_affectation }}</p>
+            <p><i class="bi bi-gear-wide-connected"></i> <strong>Responsabilités :</strong> {{ technicien.responsabilites }}</p>
+        </div>
+    </div>
+
+    <h4 class="text-success mb-3">📋 Mes interventions</h4>
+
+    {% if maintenances %}
+        <ul class="list-group">
+            {% for m in maintenances %}
+                <li class="list-group-item maintenance-item d-flex justify-content-between align-items-start mb-2">
+                    <div class="flex-grow-1">
+                        <strong><i class="bi bi-clock-history"></i> {{ m.date|date:"d/m/Y H:i" }}</strong><br>
+                        Équipement : <strong>{{ m.equipement.designation }}</strong><br>
+                        État :
+                        <span class="badge etat-badge
+                            {% if m.equipement.etat == 'DISPO' %}bg-success
+                            {% elif m.equipement.etat == 'EN_PANNE' %}bg-danger
+                            {% else %}bg-warning
+                            {% endif %}">
+                            {{ m.equipement.get_etat_display }}
+                        </span>
+                        <br>
+                        <small class="text-muted">📝 {{ m.description }}</small>
+                    </div>
+
+                    <div class="ms-3 text-end">
+                        {% if m.equipement.etat != 'DISPO' %}
+                            <form method="post" action="" onsubmit="return confirm('Confirmer que cette maintenance est terminée ?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="maintenance_id" value="{{ m.id }}">
+                                <button type="submit" class="btn btn-sm btn-primary mt-2">
+                                    <i class="bi bi-check-circle-fill"></i> Terminer
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="badge bg-success mt-3"><i class="bi bi-check-lg"></i> Terminé</span>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-light text-muted mt-3">
+            <i class="bi bi-info-circle"></i> Aucune intervention pour le moment.
+        </div>
+    {% endif %}
+</div>
+
+<!-- ✅ Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+{% endblock %}

@@ -127,27 +127,55 @@ from django.contrib.auth.decorators import login_required
 @login_required
 def home_view(request):
     return render(request, "utilisateur/home.html")
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Maintenance
+
+
+
+from django.http import HttpResponseForbidden
+from django.contrib import messages
+from .models import Technicien, Maintenance, Equipement
 
 @login_required
-def technicien_dashboard(request):
-    taches = Maintenance.objects.select_related('technicien', 'equipement')
+def dashboard_technicien(request):
+    utilisateur = request.user
+
+    # Vérifier si utilisateur est un technicien
+    try:
+        technicien = utilisateur.technicien
+    except Technicien.DoesNotExist:
+        return HttpResponseForbidden("Accès réservé aux techniciens.")
+
+    # Si POST → le technicien a cliqué sur "valider"
+    if request.method == "POST":
+        maintenance_id = request.POST.get("maintenance_id")
+        maintenance = get_object_or_404(Maintenance, id=maintenance_id, technicien=technicien)
+
+        # Mise à jour de l'état de l'équipement
+        equipement = maintenance.equipement
+        equipement.etat = "DISPO"
+        equipement.save()
+
+        messages.success(request, f"Maintenance pour {equipement.designation} validée, équipement mis à jour comme disponible.")
+        return redirect("technicien_dashboard")
+
+    # Récupération des maintenances du technicien
+    maintenances = Maintenance.objects.filter(technicien=technicien).order_by('-date')
+
     return render(request, 'utilisateur/technicien_dashboard.html', {
-        'taches': taches
+        'technicien': technicien,
+        'maintenances': maintenances,
     })
 
-@login_required
-def changer_etat(request, tache_id):
-    tache = get_object_or_404(Maintenance, id=tache_id, technicien__utilisateur=request.user)
-    equip = tache.equipement
-    if request.method == 'POST':
-        new_etat = request.POST.get('etat')
-        if new_etat in ['DISPO', 'EN_PANNE', 'MAINTENANCE']:
-            equip.etat = new_etat
-            equip.save(update_fields=['etat'])
-    return redirect('technicien_dashboard')
+
+# @login_required
+# def changer_etat(request, tache_id):
+#     tache = get_object_or_404(Maintenance, id=tache_id, technicien__utilisateur=request.user)
+#     equip = tache.equipement
+#     if request.method == 'POST':
+#         new_etat = request.POST.get('etat')
+#         if new_etat in ['DISPO', 'EN_PANNE', 'MAINTENANCE']:
+#             equip.etat = new_etat
+#             equip.save(update_fields=['etat'])
+#     return redirect('technicien_dashboard')
 
 
 
@@ -437,10 +465,9 @@ def details_interventions_par_service(request):
     })
 
 
-
 from django.shortcuts import render
 from django.db.models import Count
-from .models import Maintenance, Technicien
+from .models import Maintenance
 
 def interventions_par_technicien(request):
     # Comptage des interventions par technicien
@@ -458,22 +485,37 @@ def interventions_par_technicien(request):
         nom = st['technicien__utilisateur__username']
         data[tech_id] = {'username': nom, 'total': st['total'], 'maintenances': []}
 
-    # Récupérer toutes les maintenances avec relations
+    # Récupérer toutes les maintenances avec relations nécessaires
     maints = Maintenance.objects.select_related(
-        'technicien__utilisateur', 'equipement'
-    ).prefetch_related(
-        'equipement__departemental__service_attribue',
-        'equipement__reseau__service_attribue'
+        'technicien__utilisateur', 'equipement',
+        'equipement__departemental__gerant__service',
+        'equipement__reseau__service_attribue',
+        'equipement__individuel__proprietaire__service',
     )
 
     for m in maints:
         tech = m.technicien
         if tech and tech.id in data:
+            # Trouver le service lié à l'équipement de cette maintenance
+            equip = m.equipement
+            srv = None
+
+            if hasattr(equip, 'departemental') and equip.departemental.gerant and equip.departemental.gerant.service:
+                srv = equip.departemental.gerant.service
+            elif hasattr(equip, 'reseau') and equip.reseau.service_attribue:
+                srv = equip.reseau.service_attribue
+            elif hasattr(equip, 'individuel') and equip.individuel.proprietaire and equip.individuel.proprietaire.service:
+                srv = equip.individuel.proprietaire.service
+
+            # Ajouter le service comme attribut dynamique à l'objet maintenance
+            m.service = srv
+
             data[tech.id]['maintenances'].append(m)
 
     return render(request,
                   'interventions/par_technicien.html',
                   {'data': data})
+
 
 
 from django.shortcuts import render, redirect, get_object_or_404

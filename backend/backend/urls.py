@@ -33,8 +33,8 @@ urlpatterns = [
     
     path('dashboard/admin/', views.dashboard_admin, name='admin_dashboard'),
     path('home/', views.home_view, name='home'),
-    path('dashboard/technicien/', views.technicien_dashboard, name='technicien_dashboard'),
-    path('dashboard/technicien/taches/changer_etat/<int:tache_id>/', views.changer_etat, name='changer_etat'),
+    path('dashboard/technicien/', views.dashboard_technicien, name='technicien_dashboard'),
+    # path('dashboard/technicien/taches/changer_etat/<int:tache_id>/', views.changer_etat, name='changer_etat'),
 
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('dashboard/admin/ajouter-equipement/', views.ajouter_equipement, name='ajouter_equipement'),
