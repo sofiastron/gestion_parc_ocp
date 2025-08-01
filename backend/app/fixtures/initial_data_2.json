@@ -1,0 +1,103 @@
+[
+  { "model": "app.role", "pk": 1, "fields": { "nom": "ADMIN", "permissions": {"manage_all": true} } },
+  { "model": "app.role", "pk": 2, "fields": { "nom": "TECH", "permissions": {"maintain_equipements": true} } },
+  { "model": "app.role", "pk": 3, "fields": { "nom": "USER", "permissions": {"view_only": true} } },
+
+  { "model": "app.service", "pk": 1, "fields": { "nom": "Informatique" } },
+  { "model": "app.service", "pk": 2, "fields": { "nom": "Maintenance" } },
+  { "model": "app.service", "pk": 3, "fields": { "nom": "Direction" } },
+  { "model": "app.service", "pk": 4, "fields": { "nom": "Réseaux" } },
+
+  { "model": "app.utilisateur", "pk": 1, "fields": {
+      "username": "admin1", "first_name": "Alice", "last_name": "Admin", "email": "admin@example.com",
+      "is_superuser": true, "is_staff": true, "is_active": true, "password": "pbkdf2_sha256$...",
+      "role": 1, "matricule": "ADM001", "telephone": "+212600000001", "emplacement": "Bureau A1", "service": 3,
+      "date_joined": "2025-01-01T08:00:00Z", "groups": [], "user_permissions": []
+  }},
+  { "model": "app.utilisateur", "pk": 2, "fields": {
+      "username": "tech1", "first_name": "Tarek", "last_name": "Tech", "email": "tech1@example.com",
+      "is_superuser": false, "is_staff": false, "is_active": true, "password": "pbkdf2_sha256$...",
+      "role": 2, "matricule": "TECH001", "telephone": "+212600000002", "emplacement": "Atelier B1", "service": 2,
+      "date_joined": "2025-01-02T09:00:00Z", "groups": [], "user_permissions": []
+  }},
+  { "model": "app.utilisateur", "pk": 3, "fields": {
+      "username": "tech2", "first_name": "Sara", "last_name": "Tech", "email": "tech2@example.com",
+      "is_superuser": false, "is_staff": false, "is_active": true, "password": "pbkdf2_sha256$...",
+      "role": 2, "matricule": "TECH002", "telephone": "+212600000003", "emplacement": "Atelier B2", "service": 2,
+      "date_joined": "2025-01-02T10:00:00Z", "groups": [], "user_permissions": []
+  }},
+  { "model": "app.utilisateur", "pk": 4, "fields": {
+      "username": "user1", "first_name": "Karim", "last_name": "User", "email": "user1@example.com",
+      "is_superuser": false, "is_staff": false, "is_active": true, "password": "pbkdf2_sha256$...",
+      "role": 3, "matricule": "USR001", "telephone": "+212600000004", "emplacement": "Bureau C1", "service": 1,
+      "date_joined": "2025-01-03T08:00:00Z", "groups": [], "user_permissions": []
+  }},
+  { "model": "app.utilisateur", "pk": 5, "fields": {
+      "username": "user2", "first_name": "Nadia", "last_name": "User", "email": "user2@example.com",
+      "is_superuser": false, "is_staff": false, "is_active": true, "password": "pbkdf2_sha256$...",
+      "role": 3, "matricule": "USR002", "telephone": "+212600000005", "emplacement": "Bureau C2", "service": 1,
+      "date_joined": "2025-01-03T08:00:00Z", "groups": [], "user_permissions": []
+  }},
+
+  { "model": "app.technicien", "pk": 1, "fields": {
+      "utilisateur": 2, "groupe_affectation": "Équipe A", "responsabilites": "Maintenance PC & Réseaux"
+  }},
+  { "model": "app.technicien", "pk": 2, "fields": {
+      "utilisateur": 3, "groupe_affectation": "Équipe B", "responsabilites": "Maintenance Réseaux"
+  }},
+
+  { "model": "app.administrateur", "pk": 1, "fields": {
+      "utilisateur": 1, "administration": "Direction Centrale"
+  }},
+
+  { "model": "app.equipement", "pk": 1, "fields": {
+      "designation": "Ordinateur Portable Dell", "fabriquant": "Dell", "modele": "Latitude 7400",
+      "etat": "DISPO", "destination": "Bureau A1", "localisation": "1er étage", "date_livraison": "2024-12-10",
+      "duree_garantie": 24, "ip": "192.168.1.101", "type_equipement": "INDIVIDUEL"
+  }},
+  { "model": "app.equipementindividuel", "pk": 1, "fields": {
+      "equipement": 1, "type": "PC", "date_affectation": "2025-01-05", "date_mise_en_service": "2025-01-06", "proprietaire": 4
+  }},
+
+  { "model": "app.equipement", "pk": 2, "fields": {
+      "designation": "Écran Affichage", "fabriquant": "LG", "modele": "Display42",
+      "etat": "MAINTENANCE", "destination": "Salle réunion", "localisation": "RDC", "date_livraison": "2023-06-10",
+      "duree_garantie": 36, "ip": null, "type_equipement": "DEPARTEMENTAL"
+  }},
+  { "model": "app.equipementdepartemental", "pk": 2, "fields": {
+      "equipement": 2, "type": "AFFICHAGE", "date_affectation": "2023-06-15", "date_mise_en_service": "2023-06-20",
+      "emplacement": "Salle Réunion", "gerant": 5, "service_attribue": 1
+  }},
+
+  { "model": "app.equipement", "pk": 3, "fields": {
+      "designation": "Switch Cisco", "fabriquant": "Cisco", "modele": "Catalyst 9200",
+      "etat": "EN_PANNE", "destination": "Baie serveur", "localisation": "Sous-sol", "date_livraison": "2022-11-01",
+      "duree_garantie": 60, "ip": "192.168.0.1", "type_equipement": "RESEAU"
+  }},
+  { "model": "app.equipementreseau", "pk": 3, "fields": {
+      "equipement": 3, "type": "SWITCH", "adresse_mac": "00:11:22:33:44:55", "service_attribue": 4
+  }},
+
+  { "model": "app.equipement", "pk": 4, "fields": {
+      "designation": "Routeur TP-Link", "fabriquant": "TP-Link", "modele": "AX6000",
+      "etat": "DISPO", "destination": "Étage 2", "localisation": "Bureau réseau", "date_livraison": "2024-04-05",
+      "duree_garantie": 24, "ip": "192.168.2.1", "type_equipement": "RESEAU"
+  }},
+  { "model": "app.equipementreseau", "pk": 4, "fields": {
+      "equipement": 4, "type": "ROUTEUR", "adresse_mac": "AA:BB:CC:DD:EE:FF", "service_attribue": 4
+  }},
+
+  { "model": "app.maintenance", "pk": 1, "fields": {
+      "equipement": 2, "technicien": 1, "date": "2025-07-10T10:00:00Z", "description": "Réparation écran fissuré"
+  }},
+  { "model": "app.maintenance", "pk": 2, "fields": {
+      "equipement": 3, "technicien": 2, "date": "2025-07-12T14:00:00Z", "description": "Remplacement carte réseau"
+  }},
+
+  { "model": "app.alerte", "pk": 1, "fields": {
+      "equipement": 3, "niveau": "CRITIQUE", "resolue": false
+  }},
+  { "model": "app.alerte", "pk": 2, "fields": {
+      "equipement": 2, "niveau": "WARNING", "resolue": true
+  }}
+]

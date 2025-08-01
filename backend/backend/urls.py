@@ -65,6 +65,6 @@ urlpatterns = [
  
     path('home/equipements/reseau/', views.liste_equipements_reseau, name='liste_equipements_reseau'),
 
-
+    
 ]
 

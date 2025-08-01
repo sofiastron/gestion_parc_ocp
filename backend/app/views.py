@@ -1,7 +1,3 @@
-from django.contrib import messages
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Utilisateur, Role, Technicien, Administrateur
-from .forms import UtilisateurForm
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -648,12 +644,16 @@ def dashboard_admin(request):
 
     total_maintenances = Maintenance.objects.count()
     total_equipements = Equipement.objects.count()
-
+    notifications = Maintenance.objects.select_related(
+      'technicien__utilisateur',
+      'equipement'
+).order_by('-date')[:5]  # Affiche les 5 dernières
     return render(request, 'utilisateur/admin_dashboard.html', {
         'service_labels': service_labels,
         'service_data': service_data,
         'tech_labels': tech_labels,
         'tech_data': tech_data,
+        'notifications': notifications,
         'total_maintenances': total_maintenances,
         'total_equipements': total_equipements,
     })
