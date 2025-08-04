@@ -111,7 +111,7 @@
 
     <!-- 🌿 En-tête stylisée -->
     <div class="header-box">
-        <h2 class="dashboard-title">Tableau de bord du technicien</h2>
+        <h2 class="dashboard-title">🛠️ Tableau de bord du technicien</h2>
         <p class="welcome-text">Bienvenue {{ technicien.utilisateur.get_full_name }} — vous pouvez suivre et gérer vos interventions ici.</p>
     </div>
 
@@ -132,7 +132,7 @@
     </div>
 
     <!-- 📋 Liste des maintenances -->
-    <h4 class="section-title"> Mes interventions</h4>
+    <h4 class="section-title">📋 Mes interventions</h4>
 
     {% if maintenances %}
         <ul class="list-group">
@@ -149,7 +149,7 @@
                             {% endif %}">
                             {{ m.equipement.get_etat_display }}
                         </span><br>
-                        <small class="text-muted"> {{ m.description }}</small>
+                        <small class="text-muted">📝 {{ m.description }}</small>
                     </div>
 
                     <div class="ms-3 text-end">

@@ -738,7 +738,6 @@ def liste_equipements_reseau(request):
         'form': form
     })
 
-
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from utils.ml_predict import predire_panne
