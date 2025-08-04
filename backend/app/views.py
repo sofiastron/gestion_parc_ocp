@@ -737,3 +737,48 @@ def liste_equipements_reseau(request):
         'equipements': equips,
         'form': form
     })
+
+
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+from utils.ml_predict import predire_panne
+from app.models import Equipement, Maintenance, Alerte
+from datetime import date
+
+@csrf_exempt
+def prediction_view(request):
+    if request.method == 'POST':
+        equipement_id = request.POST.get('equipement_id')
+
+        try:
+            equipement = Equipement.objects.get(id=equipement_id)
+
+            # Calcule de l’âge en jours
+            age_days = (date.today() - equipement.date_livraison).days
+
+            # Type (INDIVIDUEL, DEPARTEMENTAL, RESEAU)
+            type_equipement = equipement.type_equipement
+
+            # Nombre de maintenances
+            nb_maintenances = equipement.maintenances.count()
+
+            # Nombre d'alertes non résolues
+            nb_alertes_actives = equipement.alertes.filter(resolue=False).count()
+
+            # Appel de la prédiction
+            prediction = predire_panne(
+                age_days=age_days,
+                type_equipement=type_equipement,
+                nb_maintenances=nb_maintenances,
+                nb_alertes_actives=nb_alertes_actives
+            )
+
+            label = "🔧 EN PANNE PROBABLE" if prediction == 1 else "✅ FONCTIONNEL"
+            return JsonResponse({"prediction": label})
+
+        except Equipement.DoesNotExist:
+            return JsonResponse({"error": "Équipement introuvable."}, status=404)
+
+    return JsonResponse({"error": "Requête non autorisée."}, status=400)
+
+

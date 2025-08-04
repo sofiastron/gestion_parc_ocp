@@ -64,7 +64,8 @@ urlpatterns = [
     path('home/equipements/departementaux/', views.liste_equipements_departementaux, name='liste_equipements_departementaux'),
  
     path('home/equipements/reseau/', views.liste_equipements_reseau, name='liste_equipements_reseau'),
-
+    
+    path('predire-panne/', views.prediction_view, name='predire_panne'),
     
 ]
 

@@ -1,164 +1,157 @@
 {% load static %}
+{% block content %}
 
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Dashboard Admin OCP</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <style>
-    :root {
-      --green-ocp: #178a34;
-      --white: #ffffff;
-      --gray-bg: #f5f9f6;
+<!-- 🎨 Style personnalisé inspiré de Canva -->
+<style>
+    body {
+        background: linear-gradient(to right, #f0fdf4, #f6fff9);
+        font-family: 'Segoe UI', sans-serif;
     }
-    body { background: var(--gray-bg); font-family: 'Segoe UI', sans-serif; margin: 0; }
-    nav.sidebar { width: 240px; background: var(--green-ocp); position: fixed; top:0; bottom:0; padding-top:1rem; color:#fff; }
-    nav.sidebar a { color:#fff; padding:.75rem 1rem; display:block; text-decoration:none; }
-    nav.sidebar a:hover { background:#0f4f24; }
-    .main { margin-left: 240px; padding:1rem 2rem; }
-    .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,.1); transition:.3s; }
-  </style>
-</head>
-<body>
-  <nav class="sidebar">
-    <div class="text-center mb-4">
-      <img src="{% static 'images/ocp_logo.png' %}" alt="Logo OCP" height="50">
-    </div>
-    <form method="post" action="{% url 'home' %}" class="px-3 mb-3">{% csrf_token %}
-      <button type="submit" class="btn btn-outline-light w-100">
-        <i class="fas fa-home me-2"></i>Accueil
-      </button>
-    </form>
-    <a href="ajouter-equipement/"><i class="fas fa-plus me-2"></i>Ajouter un équipement</a>
-    <a href="ajoututilisateur/"><i class="fas fa-user-plus me-2"></i>Ajouter un utilisateur</a>
-    <a href="editer/"><i class="fas fa-edit me-2"></i>Modifier un utilisateur</a>
-    <a href="{% url 'equipements_reformer' %}"><i class="fas fa-tools me-2"></i>Identifier équipements à réformer / Affecter équipement</a>
-    <a href="equipements/actifs/"><i class="fas fa-desktop me-2"></i>Voir équipements actifs</a>
-    <a href="interventions/service/details/"><i class="fas fa-building me-2"></i>Voir interventions par service</a>
-    <a href="interventions/technicien/"><i class="fas fa-user-cog me-2"></i>Voir interventions par technicien</a>
-    <a href="interventions/equipement/"><i class="fas fa-tools me-2"></i>Voir interventions par équipement</a>
-    <form method="post" action="{% url 'logout' %}" class="px-3 mt-3">{% csrf_token %}
-      <button type="submit" class="btn btn-danger w-100">
-        <i class="fas fa-sign-out-alt me-2"></i>Se déconnecter
-      </button>
-    </form>
-  </nav>
 
-  <div class="main">
-    <nav class="navbar navbar-light bg-white mb-4 shadow-sm">
-      <div class="container-fluid d-flex justify-content-between align-items-center">
-        <span class="navbar-brand h4" style="color: var(--green-ocp);">Dashboard Administrateur</span>
-        <div class="dropdown">
-          <button class="btn btn-light position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-bell"></i>
-            {% if notifications|length > 0 %}
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                {{ notifications|length }}
-              </span>
-            {% endif %}
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            {% for notif in notifications %}
-              <li class="dropdown-item small">
-                <strong>{{ notif.equipement.designation }}</strong><br>
-                Intervention par {{ notif.technicien.utilisateur.username }}<br>
-                <small>{{ notif.date|date:"d/m/Y H:i" }}</small>
-              </li>
-            {% empty %}
-              <li class="dropdown-item text-muted">Aucune nouvelle intervention</li>
+    .dashboard-title {
+        color: #198754;
+        font-weight: 700;
+        font-size: 2.2rem;
+        border-left: 6px solid #198754;
+        padding-left: 12px;
+        animation: fadeSlide 0.6s ease-out;
+    }
+
+    @keyframes fadeSlide {
+        from {
+            transform: translateY(-10px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .card {
+        border: none;
+        border-radius: 20px;
+        background: white;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+        padding: 1.5rem;
+        animation: fadeSlide 0.5s ease-out;
+    }
+
+    .maintenance-item {
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        background: #ffffff;
+        border: 1px solid #e2f2ea;
+    }
+
+    .maintenance-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(25, 135, 84, 0.12);
+        background-color: #f5fffa;
+    }
+
+    .etat-badge {
+        font-size: 0.85rem;
+        padding: 0.35em 0.65em;
+        border-radius: 10px;
+    }
+
+    .btn-primary {
+        background-color: #198754;
+        border-color: #198754;
+        font-weight: 500;
+        border-radius: 12px;
+    }
+
+    .btn-primary:hover {
+        background-color: #146c43;
+        border-color: #146c43;
+    }
+
+    .badge.bg-success, .badge.bg-danger, .badge.bg-warning {
+        border-radius: 10px;
+        font-weight: 500;
+    }
+
+    .alert-success {
+        border-radius: 12px;
+    }
+
+    .no-data {
+        background-color: #fff;
+        padding: 1.5rem;
+        border-radius: 15px;
+        text-align: center;
+        color: #6c757d;
+        border: 1px dashed #b0eac8;
+        margin-top: 2rem;
+        animation: fadeSlide 0.5s ease-out;
+    }
+
+</style>
+
+<div class="container mt-5">
+    <h2 class="dashboard-title mb-4">🛠️ Tableau de bord du technicien</h2>
+
+    {% if messages %}
+        <div class="alert alert-success fade show" role="alert">
+            {% for message in messages %}
+                <div>{{ message }}</div>
             {% endfor %}
-          </ul>
         </div>
-      </div>
-    </nav>
+    {% endif %}
 
-    <section class="row mb-4">
-      <div class="col-md-6 mb-3">
-        <div class="card card-hover text-center">
-          <div class="card-body">
-            <h5>Total équipements</h5>
-            <h2 id="totalEquip">–</h2>
-          </div>
+    <div class="card shadow mb-5">
+        <h5 class="card-title mb-3"><i class="bi bi-person-badge-fill text-success"></i> Bonjour <strong>{{ technicien.utilisateur.get_full_name }}</strong></h5>
+        <p><i class="bi bi-people-fill text-muted"></i> <strong>Groupe d'affectation :</strong> {{ technicien.groupe_affectation }}</p>
+        <p><i class="bi bi-gear-wide-connected text-muted"></i> <strong>Responsabilités :</strong> {{ technicien.responsabilites }}</p>
+    </div>
+
+    <h4 class="text-success mb-4">📋 Mes interventions</h4>
+
+    {% if maintenances %}
+        <ul class="list-group">
+            {% for m in maintenances %}
+                <li class="list-group-item maintenance-item d-flex justify-content-between align-items-start mb-3">
+                    <div class="flex-grow-1 pe-3">
+                        <strong><i class="bi bi-clock-history text-success"></i> {{ m.date|date:"d/m/Y H:i" }}</strong><br>
+                        <span class="text-muted">Équipement :</span> <strong>{{ m.equipement.designation }}</strong><br>
+                        <span class="text-muted">État :</span>
+                        <span class="badge etat-badge
+                            {% if m.equipement.etat == 'DISPO' %}bg-success
+                            {% elif m.equipement.etat == 'EN_PANNE' %}bg-danger
+                            {% else %}bg-warning
+                            {% endif %}">
+                            {{ m.equipement.get_etat_display }}
+                        </span><br>
+                        <small class="text-muted">📝 {{ m.description }}</small>
+                    </div>
+
+                    <div class="ms-3 text-end">
+                        {% if m.equipement.etat != 'DISPO' %}
+                            <form method="post" action="" onsubmit="return confirm('Confirmer que cette maintenance est terminée ?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="maintenance_id" value="{{ m.id }}">
+                                <button type="submit" class="btn btn-sm btn-primary mt-2">
+                                    <i class="bi bi-check-circle-fill"></i> Terminer
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="badge bg-success mt-3"><i class="bi bi-check-lg"></i> Terminé</span>
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="no-data">
+            <i class="bi bi-info-circle fs-4"></i><br>
+            Aucune intervention pour le moment.
         </div>
-      </div>
-      <div class="col-md-6 mb-3">
-        <div class="card card-hover text-center">
-          <div class="card-body">
-            <h5>Total interventions</h5>
-            <h2 id="totalMaint">–</h2>
-          </div>
-        </div>
-      </div>
-    </section>
+    {% endif %}
+</div>
 
-    <section class="row mb-5">
-      <div class="col-lg-6 mb-4">
-        <div class="card card-hover">
-          <div class="card-header bg-success text-white">Interventions par service</div>
-          <div class="card-body">
-            <canvas id="chartService"></canvas>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-6 mb-4">
-        <div class="card card-hover">
-          <div class="card-header bg-success text-white">Top techniciens</div>
-          <div class="card-body">
-            <canvas id="chartTech"></canvas>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
+<!-- ✅ Bootstrap Icons CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
 
-  <footer class="text-center py-3" style="background: var(--white); border-top:1px solid #ddd;">
-    &copy; 2025 OCP Group – Admin Dashboard
-  </footer>
-
-  {{ service_labels|json_script:"lbl_service" }}
-  {{ service_data|json_script:"val_service" }}
-  {{ tech_labels|json_script:"lbl_tech" }}
-  {{ tech_data|json_script:"val_tech" }}
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    const serviceLabels = JSON.parse(document.getElementById('lbl_service').textContent);
-    const serviceData = JSON.parse(document.getElementById('val_service').textContent);
-    const techLabels = JSON.parse(document.getElementById('lbl_tech').textContent);
-    const techData = JSON.parse(document.getElementById('val_tech').textContent);
-
-    document.getElementById('totalEquip').innerText = {{ total_equipements }};
-    document.getElementById('totalMaint').innerText = {{ total_maintenances }};
-
-    new Chart(document.getElementById('chartService'), {
-      type: 'bar',
-      data: {
-        labels: serviceLabels,
-        datasets: [{
-          label: 'Interventions',
-          data: serviceData,
-          backgroundColor: '#178a34'
-        }]
-      },
-      options: { responsive: true }
-    });
-
-    new Chart(document.getElementById('chartTech'), {
-      type: 'bar',
-      data: {
-        labels: techLabels,
-        datasets: [{
-          label: 'Interventions',
-          data: techData,
-          backgroundColor: '#178a34'
-        }]
-      },
-      options: { responsive: true }
-    });
-  </script>
-</body>
-</html>
+{% endblock %}
