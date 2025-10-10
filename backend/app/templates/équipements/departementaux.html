@@ -3,76 +3,198 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Équipements Départementaux</title>
+  <title> Équipements Départementaux | OCP Parc Informatique</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
   <style>
-    body { background:#f5f9f6; font-family:'Segoe UI', sans-serif; }
-    .equip-card { transition: transform .2s; }
-    .equip-card:hover { transform: scale(1.02); box-shadow:0 4px 10px rgba(0,128,0,0.1); }
-    .btn-ocp { background:#178a34; color:#fff; }
-    .btn-ocp:hover { background:#145d28; }
+    body {
+      background: linear-gradient(-45deg, #f0fdf4, #dff7e6, #e6f8ed, #f5fff8);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      color: #178a34;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 2rem;
+      letter-spacing: 1px;
+      animation: fadeDown 1s ease;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .equip-card {
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 25px;
+      box-shadow: 0 8px 25px rgba(23,138,52,0.15);
+      transition: all 0.3s ease;
+      transform: scale(0.97);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .equip-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 12px 35px rgba(23,138,52,0.3);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-ocp {
+      background: linear-gradient(135deg, #20b14a, #178a34);
+      color: #fff;
+      border-radius: 50px;
+      border: none;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(23,138,52,0.3);
+      transition: 0.3s ease;
+    }
+
+    .btn-ocp:hover {
+      background: linear-gradient(135deg, #178a34, #0d6e2c);
+      box-shadow: 0 8px 25px rgba(23,138,52,0.4);
+      transform: translateY(-2px);
+    }
+
+    .search-bar {
+      border-radius: 50px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(23,138,52,0.2);
+      background: white;
+      animation: fadeIn 1s ease;
+    }
+
+    .no-result {
+      text-align: center;
+      color: #4c4c4c;
+      margin-top: 100px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .no-result i {
+      font-size: 5rem;
+      color: #178a34;
+      margin-bottom: 15px;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .modal-content {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeInScale 0.4s ease;
+    }
+
+    @keyframes fadeInScale {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
   </style>
 </head>
+
 <body>
   <div class="container py-5">
-    <h1 class="text-center mb-4" style="color:#178a34;">Équipements Départementaux</h1>
+    <h1><i class="bi bi-building me-2"></i>Équipements Départementaux</h1>
+
+    <!-- 🔍 Barre de recherche -->
+    <form method="get" class="mb-5">
+      <div class="input-group search-bar">
+        <input type="text" name="search" class="form-control ps-4" placeholder="🔍 Rechercher un équipement départemental..." value="{{ search }}">
+        <button class="btn btn-ocp px-4" type="submit"><i class="bi bi-search"></i> Rechercher</button>
+      </div>
+    </form>
+
+    <!-- 💻 Liste d’équipements -->
     <div class="row g-4">
       {% for e in equipements %}
         <div class="col-md-4">
-          <div class="card equip-card p-3">
-            <h5>{{ e.equipement.designation }}</h5>
+          <div class="equip-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="text-success fw-bold mb-0">{{ e.equipement.designation }}</h5>
+              <i class="bi bi-diagram-3 fs-3 text-success"></i>
+            </div>
+            <hr>
             <p><strong>Type :</strong> {{ e.get_type_display }}</p>
             <p><strong>État :</strong>
-              <span class="badge
-                {% if e.equipement.etat == 'DISPO' %}bg-success
-                {% elif e.equipement.etat == 'EN_PANNE' %}bg-danger
-                {% else %}bg-warning{% endif %}">
+              <span class="badge 
+                {% if e.equipement.etat == 'DISPO' %} bg-success
+                {% elif e.equipement.etat == 'EN_PANNE' %} bg-danger
+                {% else %} bg-warning {% endif %}">
                 {{ e.equipement.get_etat_display }}
               </span>
             </p>
             <p><strong>Emplacement :</strong> {{ e.emplacement }}</p>
 
             {% if e.equipement.etat != 'MAINTENANCE' %}
-              <button class="btn btn-ocp w-100" data-bs-toggle="modal" data-bs-target="#modal{{ e.equipement.id }}">
-                Demander une intervention
+              <button class="btn btn-ocp w-100 mt-3" data-bs-toggle="modal" data-bs-target="#modal{{ e.equipement.id }}">
+                <i class="bi bi-tools me-1"></i> Demander une intervention
               </button>
             {% else %}
-              <button class="btn btn-secondary w-100" disabled>Tâche ouverte</button>
+              <button class="btn btn-secondary w-100 mt-3" disabled>
+                <i class="bi bi-hourglass-split me-1"></i> En maintenance
+              </button>
             {% endif %}
           </div>
         </div>
 
-        <!-- Modal intervention -->
+        <!-- 🧰 Modal -->
         <div class="modal fade" id="modal{{ e.equipement.id }}" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
               <form method="post">
                 {% csrf_token %}
-                <div class="modal-header">
-                  <h5 class="modal-title">Intervention — {{ e.equipement.designation }}</h5>
+                <div class="modal-header bg-success text-white">
+                  <h5 class="modal-title"><i class="bi bi-wrench-adjustable-circle me-2"></i> Intervention — {{ e.equipement.designation }}</h5>
                   <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                   <input type="hidden" name="equipement_id" value="{{ e.equipement.id }}">
+                  <label class="form-label fw-semibold">Description du problème :</label>
                   {{ form.description }}
                 </div>
                 <div class="modal-footer">
-                  <button type="submit" class="btn btn-ocp">Envoyer</button>
+                  <button type="submit" class="btn btn-ocp"><i class="bi bi-send"></i> Envoyer</button>
                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
                 </div>
               </form>
             </div>
           </div>
         </div>
-
       {% empty %}
-        <div class="col">
-          <p class="text-center fst-italic text-muted">Aucun équipement départemental trouvé.</p>
+        <div class="col-12">
+          <div class="no-result">
+            <i class="bi bi-geo-alt-slash"></i>
+            <h4>Aucun équipement départemental trouvé</h4>
+            <p class="text-muted">Essayez une autre recherche ou vérifiez la base de données.</p>
+          </div>
         </div>
       {% endfor %}
     </div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

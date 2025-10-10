@@ -7,7 +7,7 @@ from .models import Utilisateur, Role, Service
 
 class UtilisateurForm(forms.ModelForm):
     role = forms.ModelChoiceField(
-        queryset=Role.objects.all(),
+        queryset=Role.objects.none(),  # sera défini dynamiquement
         label='Rôle',
         widget=forms.Select(attrs={'class': 'form-select'})
     )
@@ -28,6 +28,15 @@ class UtilisateurForm(forms.ModelForm):
             'emplacement': forms.TextInput(attrs={'class': 'form-control'}),
             'service': forms.Select(attrs={'class': 'form-select'}),
         }
+
+    def __init__(self, *args, exclude_admin=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if exclude_admin:
+            self.fields['role'].queryset = Role.objects.exclude(nom='ADMIN')
+        else:
+            self.fields['role'].queryset = Role.objects.all()
+
+
 
 from django.contrib.auth.forms import AuthenticationForm
 from django import forms

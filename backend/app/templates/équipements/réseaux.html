@@ -3,76 +3,202 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Équipements Réseau</title>
+  <title> Équipements Réseau | OCP Parc Informatique</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
   <style>
-    body { background: #eef8ef; font-family:'Segoe UI', sans-serif; }
-    .equip-card { transition: transform .2s; }
-    .equip-card:hover { transform: scale(1.02); box-shadow:0 4px 10px rgba(0,128,0,0.1); }
-    .btn-ocp { background:#178a34; color:#fff; }
-    .btn-ocp:hover { background:#145d28; }
+    /* 🌿 Arrière-plan avec dégradé animé */
+    body {
+      background: linear-gradient(-45deg, #e9f9f0, #d4f0dd, #c3ebcb, #f0fdf4);
+      background-size: 400% 400%;
+      animation: gradientBG 12s ease infinite;
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      color: #178a34;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 1rem;
+      animation: fadeDown 1s ease;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .equip-card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(14px);
+      border-radius: 18px;
+      box-shadow: 0 8px 25px rgba(23, 138, 52, 0.15);
+      padding: 25px;
+      transition: all 0.3s ease;
+      transform: scale(0.97);
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
+    .equip-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 12px 35px rgba(23, 138, 52, 0.3);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-ocp {
+      background: linear-gradient(135deg, #20b14a, #178a34);
+      color: #fff;
+      border-radius: 50px;
+      border: none;
+      font-weight: 500;
+      transition: 0.3s ease;
+      box-shadow: 0 4px 12px rgba(23,138,52,0.3);
+    }
+
+    .btn-ocp:hover {
+      background: linear-gradient(135deg, #178a34, #0d6e2c);
+      box-shadow: 0 8px 25px rgba(23,138,52,0.4);
+      transform: translateY(-2px);
+    }
+
+    .search-bar {
+      border-radius: 50px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(23,138,52,0.2);
+      background: white;
+      animation: fadeIn 1s ease;
+    }
+
+    .no-result {
+      text-align: center;
+      color: #4c4c4c;
+      margin-top: 100px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .no-result i {
+      font-size: 5rem;
+      color: #178a34;
+      margin-bottom: 15px;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .modal-content {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      border: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      animation: fadeInScale 0.4s ease;
+    }
+
+    @keyframes fadeInScale {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
   </style>
 </head>
-<body>
-<div class="container py-5">
-  <h1 class="text-center mb-4" style="color:#178a34;">Équipements Réseau</h1>
-  <div class="row g-4">
-    {% for equip in equipements %}
-      <div class="col-md-4">
-        <div class="card equip-card p-3">
-          <h5>{{ equip.designation }}</h5>
-          <p><strong>Type :</strong> {{ equip.get_type_equipement_display }}</p>
-          <p><strong>Fabricant :</strong> {{ equip.fabriquant }}</p>
-          <p><strong>Modèle :</strong> {{ equip.modele }}</p>
-          <p><strong>État :</strong>
-            <span class="badge 
-              {% if equip.etat == 'DISPO' %}bg-success
-              {% elif equip.etat == 'EN_PANNE' %}bg-danger
-              {% else %}bg-warning{% endif %}">
-              {{ equip.get_etat_display }}
-            </span>
-          </p>
-          <p><strong>MAC :</strong> {{ equip.reseau.adresse_mac }}</p>
-          {% if equip.etat != 'MAINTENANCE' %}
-            <button class="btn btn-ocp w-100" data-bs-toggle="modal" data-bs-target="#modal{{ equip.id }}">
-              Demander une intervention
-            </button>
-          {% else %}
-            <button class="btn btn-secondary w-100" disabled>Tâche ouverte</button>
-          {% endif %}
-        </div>
-      </div>
 
-      <!-- Modal de demande -->
-      <div class="modal fade" id="modal{{ equip.id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <form method="post">
-              {% csrf_token %}
-              <div class="modal-header">
-                <h5 class="modal-title">Demande d’intervention — {{ equip.designation }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-              </div>
-              <div class="modal-body">
-                <input type="hidden" name="equipement_id" value="{{ equip.id }}">
-                {{ form.description }}
-              </div>
-              <div class="modal-footer">
-                <button type="submit" class="btn btn-ocp">Envoyer</button>
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
-              </div>
-            </form>
+<body>
+  <div class="container py-5">
+    <h1><i class="bi bi-router me-2"></i>Équipements Réseau</h1>
+
+    <!-- 🔍 Barre de recherche -->
+    <form method="get" class="mb-5">
+      <div class="input-group search-bar">
+        <input type="text" name="search" class="form-control ps-4" placeholder="🔍 Rechercher un équipement réseau..." value="{{ search }}">
+        <button class="btn btn-ocp px-4" type="submit"><i class="bi bi-search"></i> Rechercher</button>
+      </div>
+    </form>
+
+    <!-- 💻 Liste d’équipements -->
+    <div class="row g-4">
+      {% for equip in equipements %}
+        <div class="col-md-4">
+          <div class="equip-card">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h5 class="text-success fw-bold mb-0">{{ equip.designation }}</h5>
+              <i class="bi bi-hdd-network fs-3 text-success"></i>
+            </div>
+            <hr>
+            <p><strong>Type :</strong> {{ equip.get_type_equipement_display }}</p>
+            <p><strong>Fabricant :</strong> {{ equip.fabriquant }}</p>
+            <p><strong>Modèle :</strong> {{ equip.modele }}</p>
+            <p><strong>Adresse MAC :</strong> {{ equip.reseau.adresse_mac }}</p>
+            <p><strong>État :</strong>
+              <span class="badge 
+                {% if equip.etat == 'DISPO' %} bg-success
+                {% elif equip.etat == 'EN_PANNE' %} bg-danger
+                {% else %} bg-warning {% endif %}">
+                {{ equip.get_etat_display }}
+              </span>
+            </p>
+
+            {% if equip.etat != 'MAINTENANCE' %}
+              <button class="btn btn-ocp w-100 mt-3" data-bs-toggle="modal" data-bs-target="#modal{{ equip.id }}">
+                <i class="bi bi-tools me-1"></i> Demander une intervention
+              </button>
+            {% else %}
+              <button class="btn btn-secondary w-100 mt-3" disabled>
+                <i class="bi bi-hourglass-split me-1"></i> En maintenance
+              </button>
+            {% endif %}
           </div>
         </div>
-      </div>
-    {% empty %}
-      <div class="col">
-        <p class="text-center fst-italic text-muted">Aucun équipement réseau trouvé.</p>
-      </div>
-    {% endfor %}
-  </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- 🧰 Modal -->
+        <div class="modal fade" id="modal{{ equip.id }}" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form method="post">
+                {% csrf_token %}
+                <div class="modal-header bg-success text-white">
+                  <h5 class="modal-title"><i class="bi bi-wrench-adjustable-circle me-2"></i> Intervention — {{ equip.designation }}</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <input type="hidden" name="equipement_id" value="{{ equip.id }}">
+                  <label class="form-label fw-semibold">Description du problème :</label>
+                  {{ form.description }}
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-ocp"><i class="bi bi-send"></i> Envoyer</button>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <div class="no-result">
+            <i class="bi bi-wifi-off"></i>
+            <h4>Aucun équipement réseau trouvé</h4>
+            <p class="text-muted">Essayez une autre recherche ou vérifiez les connexions réseau.</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

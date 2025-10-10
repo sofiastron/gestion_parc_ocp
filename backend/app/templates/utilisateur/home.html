@@ -3,102 +3,175 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - Accueil</title>
+    <title>🏢 Dashboard - Accueil | Parc Informatique OCP</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/styles2.css' %}">
-    <script defer src="{% static 'js/script.js' %}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <style>
+        /* 🌿 Arrière-plan animé */
         body {
-            background-color: #f5f9f6;
-            color: #1b5e20;
-        }
-        .card {
-            transition: transform 0.3s ease;
-        }
-        .card:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 10px rgba(27, 94, 32, 0.3);
-        }
-        .search-bar input {
-            border: 2px solid #a5d6a7;
-        }
-        .navbar-custom {
-            background-color: #1b5e20;
-        }
-        .navbar-custom .nav-link, .navbar-custom .navbar-brand {
-            color: white;
-        }
-        .navbar-custom .nav-link:hover {
-            color: #c8e6c9;
-        }
-        footer {
-        padding: 20px 0;
-        background-color: #e8f5e9; /* Vert très clair */
-        color: #1b5e20;
-        }
-        footer img {
-        transition: transform 0.3s ease;
-        }
-        footer img:hover {
-        transform: scale(1.1);
+            background: linear-gradient(-45deg, #e9f9f0, #d4f0dd, #c3ebcb, #f0fdf4);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease infinite;
+            font-family: 'Poppins', sans-serif;
         }
 
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 {
+            color: #178a34;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeDown 1s ease;
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 🟢 Navbar */
+        .navbar-custom {
+            background: linear-gradient(135deg, #20b14a, #178a34);
+        }
+
+        .navbar-custom .nav-link, .navbar-custom .navbar-brand {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .navbar-custom .nav-link:hover {
+            color: #d4f0dd;
+        }
+
+        /* 🔍 Barre de recherche */
+        .search-bar input {
+            border-radius: 50px;
+            border: 2px solid #a5d6a7;
+            box-shadow: 0 4px 12px rgba(23,138,52,0.2);
+            padding-left: 1.5rem;
+            transition: 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: #178a34;
+            box-shadow: 0 4px 20px rgba(23,138,52,0.4);
+        }
+
+        /* 🃏 Cartes d’accès */
+        .card-access {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(23,138,52,0.15);
+            transform: scale(0.97);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .card-access:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(23,138,52,0.3);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-access h4 {
+            font-weight: 700;
+            color: #178a34;
+            margin-bottom: 10px;
+        }
+
+        .card-access p {
+            color: #065f46;
+        }
+
+        footer {
+            padding: 20px 0;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        footer img {
+            transition: transform 0.3s ease;
+        }
+
+        footer img:hover {
+            transform: scale(1.1);
+        }
+
+        footer p {
+            margin-top: 10px;
+            color: #065f46;
+        }
     </style>
 </head>
 
-
 <body>
 
-<!-- ✅ Barre de navigation -->
+<!-- ✅ Navbar -->
 <nav class="navbar navbar-expand-lg navbar-custom">
-  <div class="container">
-    <a class="navbar-brand" href="#">Parc Informatique</a>
-    <div class="ms-auto">
-      <ul class="navbar-nav">
-    
-        <li class="nav-item">
-          <form method="post" action="{% url 'logout' %}">
-             {% csrf_token %}
-             <button type="submit" class="btn btn-danger">Se déconnecter</button>
-          </form>
-
-        </li>
-      </ul>
+    <div class="container">
+        <a class="navbar-brand" href="#">Parc Informatique</a>
+        <div class="ms-auto">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-light fw-bold"><i class="bi bi-box-arrow-right"></i> Déconnexion</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
     </div>
-  </div>
 </nav>
 
-<!-- ✅ Contenu de la page -->
+<!-- ✅ Contenu -->
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Bienvenue dans le système de gestion du parc informatique</h1>
+    <h1>Bienvenue dans le système de gestion du parc informatique</h1>
 
-    <div class="row justify-content-center search-bar mb-4">
+    <!-- 🔍 Recherche -->
+    <div class="row justify-content-center search-bar mb-5">
         <div class="col-md-6">
-            <input type="text" class="form-control" id="searchInput" placeholder="Rechercher un équipement...">
+            <input type="text" class="form-control" id="searchInput" placeholder="🔍 Rechercher un équipement...">
         </div>
     </div>
 
-    <div class="row text-center">
-        <div class="col-md-4 mb-4">
-            <a href="equipements/individuels/" class="text-decoration-none text-dark">
-                <div class="card p-4 bg-white rounded shadow">
+    <!-- 🃏 Cartes d’accès -->
+    <div class="row text-center g-4">
+        <div class="col-md-4">
+            <a href="equipements/individuels/" class="text-decoration-none">
+                <div class="card-access">
+                    <i class="bi bi-person-badge-fill fs-1 text-success mb-2"></i>
                     <h4>Équipements Individuels</h4>
                     <p>Voir tous les équipements personnels.</p>
                 </div>
             </a>
         </div>
-        <div class="col-md-4 mb-4">
-            <a href="equipements/reseau/" class="text-decoration-none text-dark">
-                <div class="card p-4 bg-white rounded shadow">
+        <div class="col-md-4">
+            <a href="equipements/reseau/" class="text-decoration-none">
+                <div class="card-access">
+                    <i class="bi bi-hdd-network fs-1 text-success mb-2"></i>
                     <h4>Équipements Réseau</h4>
                     <p>Voir tous les équipements réseaux.</p>
                 </div>
             </a>
         </div>
-        <div class="col-md-4 mb-4">
-            <a href="equipements/departementaux/" class="text-decoration-none text-dark">
-                <div class="card p-4 bg-white rounded shadow">
-                    <h4>Équipements Départementaux</h4>
+        <div class="col-md-4">
+            <a href="equipements/departementaux/" class="text-decoration-none">
+                <div class="card-access">
+                    <i class="bi bi-building fs-1 text-success mb-2"></i>
+                    <h4>Équip Départementaux</h4>
                     <p>Voir les équipements par département.</p>
                 </div>
             </a>
@@ -106,9 +179,12 @@
     </div>
 </div>
 
-</body>
-<footer class="text-center mt-5">
+<!-- ✅ Footer -->
+<footer class="mt-5">
     <img src="{% static 'images/ocp_logo.png' %}" alt="Logo OCP" style="height: 80px;">
-    <p class="mt-2 text-muted">© 2025 OCP Group - Tous droits réservés</p>
+    <p>© 2025 OCP Group - Tous droits réservés</p>
 </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>

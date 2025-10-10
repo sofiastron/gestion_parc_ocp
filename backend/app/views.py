@@ -4,9 +4,15 @@ from django.contrib import messages
 from .forms import UtilisateurForm
 from .models import Utilisateur, Role, Technicien, Administrateur
 
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .forms import UtilisateurForm
+from .models import Utilisateur, Role, Technicien, Administrateur
+
+# Page d'inscription publique – pas d'ADMIN
 def inscrire_utilisateur(request):
     if request.method == "POST":
-        form = UtilisateurForm(request.POST)
+        form = UtilisateurForm(request.POST, exclude_admin=True)
         if form.is_valid():
             username = form.cleaned_data["username"]
             if Utilisateur.objects.filter(username=username).exists():
@@ -14,48 +20,40 @@ def inscrire_utilisateur(request):
                 return render(request, "utilisateur/inscription.html", {"form": form})
 
             utilisateur = form.save(commit=False)
+            utilisateur.set_password(form.cleaned_data["password"])
             role_obj = form.cleaned_data["role"]
             utilisateur.role = role_obj
-            utilisateur.set_password(form.cleaned_data["password"])
             utilisateur.save()
 
-            # Création des profils liés selon le rôle
             if role_obj.nom == "TECH":
                 Technicien.objects.create(
                     utilisateur=utilisateur,
                     groupe_affectation="N/A",
                     responsabilites="À définir"
                 )
-            elif role_obj.nom == "ADMIN":
-                Administrateur.objects.create(
-                    utilisateur=utilisateur,
-                    administration="Administration générale"
-                )
-            # Si USER : pas d'objet lié à créer
 
             messages.success(request, "Inscription réussie ! Vous pouvez maintenant vous connecter.")
             return redirect("login")
         else:
             messages.error(request, "Formulaire invalide.")
     else:
-        form = UtilisateurForm()
+        form = UtilisateurForm(exclude_admin=True)
 
     return render(request, "utilisateur/inscription.html", {"form": form})
 
+# Page admin pour ajouter n'importe quel utilisateur, y compris ADMIN
 def inscrire_utilisateur1(request):
     if request.method == "POST":
         form = UtilisateurForm(request.POST)
         if form.is_valid():
             username = form.cleaned_data["username"]
-
             if Utilisateur.objects.filter(username=username).exists():
                 messages.error(request, f"Le nom d'utilisateur '{username}' existe déjà.")
                 return render(request, "utilisateur/ajoututilisateur.html", {"form": form})
 
             utilisateur = form.save(commit=False)
-            utilisateur.set_password(form.cleaned_data["password"])  # hash du mot de passe
-
-            role_obj = form.cleaned_data["role"]  # déjà un objet Role
+            utilisateur.set_password(form.cleaned_data["password"])
+            role_obj = form.cleaned_data["role"]
             utilisateur.role = role_obj
             utilisateur.save()
 
@@ -73,14 +71,12 @@ def inscrire_utilisateur1(request):
 
             messages.success(request, "Utilisateur créé avec succès.")
             return redirect("login")
-
         else:
             messages.error(request, "Formulaire invalide.")
     else:
         form = UtilisateurForm()
 
     return render(request, "utilisateur/ajoututilisateur.html", {"form": form})
-
 
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
@@ -597,39 +593,38 @@ def assigner_technicien(request, maintenance_id):
         maintenance.technicien = get_object_or_404(Technicien, id=tech_id)
         maintenance.save()
     return redirect('interventions_par_technicien')
+
+
+from django.db.models import F, Count
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Q, F
-from app.models import Maintenance, Equipement
+from django.shortcuts import render, redirect
+from .models import Maintenance, Equipement
+from django.contrib import messages
 
 @login_required
 def dashboard_admin(request):
-    # Statistiques des interventions par service, en incluant tous types d'équipement
+    # ✅ Suppression des anciennes notifications (si le bouton est cliqué)
+    if request.method == "POST" and "clear_notifications" in request.POST:
+        Maintenance.objects.all().delete()
+        messages.success(request, "Les anciennes notifications ont été supprimées avec succès.")
+        return redirect("dashboard_admin")  # Remplace par ton nom de route exact
 
-    # Queryset pour interventions liées à un équipement départemental (via gerant.service)
+    # ----- STATISTIQUES -----
+    from collections import defaultdict
+
     qs_dept = Maintenance.objects.filter(
         equipement__departemental__gerant__service__isnull=False
-    ).values(
-        service_nom=F('equipement__departemental__gerant__service__nom')
-    ).annotate(total=Count('id'))
+    ).values(service_nom=F('equipement__departemental__gerant__service__nom')).annotate(total=Count('id'))
 
-    # Queryset pour interventions liées à un équipement réseau (via service_attribue)
     qs_reseau = Maintenance.objects.filter(
         equipement__reseau__service_attribue__isnull=False
-    ).values(
-        service_nom=F('equipement__reseau__service_attribue__nom')
-    ).annotate(total=Count('id'))
+    ).values(service_nom=F('equipement__reseau__service_attribue__nom')).annotate(total=Count('id'))
 
-    # Queryset pour interventions liées à un équipement individuel (via proprietaire.service)
     qs_indiv = Maintenance.objects.filter(
         equipement__individuel__proprietaire__service__isnull=False
-    ).values(
-        service_nom=F('equipement__individuel__proprietaire__service__nom')
-    ).annotate(total=Count('id'))
+    ).values(service_nom=F('equipement__individuel__proprietaire__service__nom')).annotate(total=Count('id'))
 
-    # Combiner les résultats par service
-    from collections import defaultdict
     service_counts = defaultdict(int)
-
     for qs in [qs_dept, qs_reseau, qs_indiv]:
         for item in qs:
             service_counts[item['service_nom']] += item['total']
@@ -637,17 +632,14 @@ def dashboard_admin(request):
     service_labels = list(service_counts.keys())
     service_data = list(service_counts.values())
 
-    # Statistiques des interventions par technicien
     qs_tech = Maintenance.objects.values('technicien__utilisateur__username').annotate(total=Count('id'))
     tech_labels = [item['technicien__utilisateur__username'] or 'Inconnu' for item in qs_tech]
     tech_data = [item['total'] for item in qs_tech]
 
     total_maintenances = Maintenance.objects.count()
     total_equipements = Equipement.objects.count()
-    notifications = Maintenance.objects.select_related(
-      'technicien__utilisateur',
-      'equipement'
-).order_by('-date')[:5]  # Affiche les 5 dernières
+    notifications = Maintenance.objects.select_related('technicien__utilisateur', 'equipement').order_by('-date')[:5]
+
     return render(request, 'utilisateur/admin_dashboard.html', {
         'service_labels': service_labels,
         'service_data': service_data,
@@ -656,7 +648,9 @@ def dashboard_admin(request):
         'notifications': notifications,
         'total_maintenances': total_maintenances,
         'total_equipements': total_equipements,
+        'admin_user': request.user,  # ✅ pour afficher le nom connecté
     })
+
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -666,25 +660,31 @@ from django.utils import timezone
 
 @login_required
 def liste_equipements_individuels(request):
+    query = request.GET.get('search', '')
     equips = Equipement.objects.filter(type_equipement='INDIVIDUEL')
+
+    if query:
+        equips = equips.filter(id__icontains=query)  # recherche par ID partielle
+
     form = DemandeInterventionForm()
     if request.method == 'POST':
         form = DemandeInterventionForm(request.POST)
         if form.is_valid():
             equip = get_object_or_404(Equipement, id=form.cleaned_data['equipement_id'])
-            # création d'une nouvelle demande d'intervention :
             Maintenance.objects.create(
                 equipement=equip,
-                technicien=None,  # assignation ultérieure par admin
+                technicien=None,
                 date=timezone.now(),
                 description=form.cleaned_data['description']
             )
             equip.etat = 'MAINTENANCE'
             equip.save(update_fields=['etat'])
             return redirect('liste_equipements_individuels')
+
     return render(request, 'équipements/personnels.html', {
         'equipements': equips,
-        'form': form
+        'form': form,
+        'search': query,
     })
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -692,10 +692,15 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import EquipementDepartemental, Maintenance
 from .forms import DemandeInterventionForm
-
 @login_required
 def liste_equipements_departementaux(request):
+    query = request.GET.get('search', '')
     equips = EquipementDepartemental.objects.select_related('equipement').all()
+
+    if query:
+        # On filtre par ID exact (ou partiel si tu veux)
+        equips = equips.filter(equipement__id__icontains=query)
+
     form = DemandeInterventionForm()
     if request.method == 'POST':
         form = DemandeInterventionForm(request.POST)
@@ -710,15 +715,22 @@ def liste_equipements_departementaux(request):
             equip.etat = 'MAINTENANCE'
             equip.save(update_fields=['etat'])
             return redirect('liste_equipements_departementaux')
+
     return render(request, 'équipements/departementaux.html', {
         'equipements': equips,
-        'form': form
+        'form': form,
+        'search': query,
     })
 
 
 @login_required
 def liste_equipements_reseau(request):
+    query = request.GET.get('search', '')
     equips = Equipement.objects.filter(type_equipement='RESEAU')
+
+    if query:
+        equips = equips.filter(id__icontains=query)  # Recherche par ID partielle
+
     form = DemandeInterventionForm()
     if request.method == 'POST':
         form = DemandeInterventionForm(request.POST)
@@ -733,10 +745,13 @@ def liste_equipements_reseau(request):
             equip.etat = 'MAINTENANCE'
             equip.save(update_fields=['etat'])
             return redirect('liste_equipements_reseau')
+
     return render(request, 'équipements/réseaux.html', {
         'equipements': equips,
-        'form': form
+        'form': form,
+        'search': query,
     })
+
 
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
