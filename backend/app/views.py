@@ -206,16 +206,6 @@ def dashboard_technicien(request):
     })
 
 
-# @login_required
-# def changer_etat(request, tache_id):
-#     tache = get_object_or_404(Maintenance, id=tache_id, technicien__utilisateur=request.user)
-#     equip = tache.equipement
-#     if request.method == 'POST':
-#         new_etat = request.POST.get('etat')
-#         if new_etat in ['DISPO', 'EN_PANNE', 'MAINTENANCE']:
-#             equip.etat = new_etat
-#             equip.save(update_fields=['etat'])
-#     return redirect('technicien_dashboard')
 
 
 
@@ -603,11 +593,7 @@ from django.contrib import messages
 
 @login_required
 def dashboard_admin(request):
-    # ✅ Suppression des anciennes notifications (si le bouton est cliqué)
-    if request.method == "POST" and "clear_notifications" in request.POST:
-        Maintenance.objects.all().delete()
-        messages.success(request, "Les anciennes notifications ont été supprimées avec succès.")
-        return redirect("dashboard_admin")  # Remplace par ton nom de route exact
+    
 
     # ----- STATISTIQUES -----
     from collections import defaultdict
@@ -639,7 +625,13 @@ def dashboard_admin(request):
     total_maintenances = Maintenance.objects.count()
     total_equipements = Equipement.objects.count()
     notifications = Maintenance.objects.select_related('technicien__utilisateur', 'equipement').order_by('-date')[:5]
-
+    if request.method == "POST" and "profile_edit_submit" in request.POST:
+         user = request.user
+         user.username = request.POST.get("username")
+         user.telephone = request.POST.get("telephone")
+         user.email = request.POST.get("email")
+         user.save()
+         messages.success(request, "Profil mis à jour avec succès ")
     return render(request, 'utilisateur/admin_dashboard.html', {
         'service_labels': service_labels,
         'service_data': service_data,

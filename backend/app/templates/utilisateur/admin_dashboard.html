@@ -3,7 +3,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Dashboard Admin OCP</title>
+  <title>OCP Admin Dashboard</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
 
   <!-- Bootstrap + Font Awesome -->
@@ -13,92 +13,122 @@
   <style>
     :root {
       --green-ocp: #178a34;
+      --green-dark: #0f4f24;
       --white: #ffffff;
       --gray-bg: #f5f9f6;
+      --gray-light: #ebf2ee;
     }
 
     body {
       background: var(--gray-bg);
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      color: #222;
     }
 
-    /* Sidebar */
+    /* --- Sidebar --- */
     nav.sidebar {
-      width: 240px;
-      background: var(--green-ocp);
+      width: 260px;
+      background: linear-gradient(180deg, var(--green-ocp), var(--green-dark));
       position: fixed;
       top: 0;
       bottom: 0;
-      padding-top: 1rem;
+      padding: 1.5rem 1rem;
       color: #fff;
-      overflow-y: auto; /* ✅ Scroll si contenu long */
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.15);
     }
 
     nav.sidebar a {
       color: #fff;
       padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin: 4px 0;
       display: block;
       text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
     }
 
     nav.sidebar a:hover {
-      background: #0f4f24;
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(5px);
     }
 
-    /* Main content */
-    .main {
-      margin-left: 240px;
-      padding: 1rem 2rem;
-    }
-
-    .card-hover:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-      transition: 0.3s;
-    }
-
-    /* Profil utilisateur */
+    /* --- User Profile --- */
     .user-profile {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-      padding-bottom: 1rem;
-      margin-bottom: 1rem;
       text-align: center;
-      padding-left: 1rem;
-      padding-right: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
     }
 
-    .user-profile .profile-image {
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 0.5rem;
-      overflow: hidden;
-      border-radius: 50%;
-      background: #ddd;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .user-profile .profile-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 50%;
+    .user-profile .fa-user-circle {
+      font-size: 4rem;
     }
 
     .user-profile .user-name {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      margin-top: 0.5rem;
     }
 
     .user-profile .btn {
       font-size: 0.8rem;
       margin-top: 0.5rem;
-      padding: 0.25rem 0.75rem;
+    }
+
+    /* --- Main Content --- */
+    .main {
+      margin-left: 260px;
+      padding: 2rem;
+    }
+
+    .navbar {
+      border-radius: 12px;
+    }
+
+    .card {
+      border: none;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+    }
+
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+    }
+
+    /* --- Profile form (sidebar) --- */
+    #formEditProfile {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 10px;
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.4s ease;
+    }
+
+    #formEditProfile input {
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    #formEditProfile .btn {
+      font-size: 0.85rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    footer {
+      background: var(--white);
+      border-top: 1px solid #ddd;
+      margin-top: 2rem;
+      font-size: 0.9rem;
     }
   </style>
 </head>
@@ -107,27 +137,30 @@
   <!-- Sidebar -->
   <nav class="sidebar">
     <div class="text-center mb-4">
-      <img src="{% static 'images/ocp_logo.png' %}" alt="Logo OCP" height="50" />
+      <img src="{% static 'images/ocp_logo.png' %}" alt="Logo OCP" height="55" />
     </div>
 
     <!-- Profil utilisateur -->
     <div class="user-profile">
-  <i class="fas fa-user-circle fa-5x text-white mb-2"></i>
-  <div class="user-name">Bienvenue, <strong>{{ admin_user.username }}</strong> 👋</div>
+      <i class="fas fa-user-circle text-white"></i>
+      <div class="user-name">Bienvenue, <strong>{{ admin_user.username }}</strong> 👋</div>
 
-
-      <button class="btn btn-outline-light btn-sm mb-2" id="btnEditProfile" type="button">Modifier profil</button>
+      <button class="btn btn-outline-light btn-sm" id="btnEditProfile" type="button">Modifier profil</button>
 
       <!-- Formulaire édition profil -->
       <form method="post" id="formEditProfile" style="display:none;">
         {% csrf_token %}
         <div class="mb-2">
-          <input type="text" name="first_name" class="form-control form-control-sm" placeholder="Prénom"
-                 value="{{ profil_utilisateur.first_name }}" required />
+          <input type="text" name="username" class="form-control form-control-sm" placeholder="Nom d'utilisateur"
+                 value="{{ admin_user.username }}" required />
         </div>
         <div class="mb-2">
-          <input type="text" name="last_name" class="form-control form-control-sm" placeholder="Nom"
-                 value="{{ profil_utilisateur.last_name }}" required />
+          <input type="email" name="email" class="form-control form-control-sm" placeholder="Email"
+                 value="{{ admin_user.email }}" />
+        </div>
+        <div class="mb-2">
+          <input type="text" name="telephone" class="form-control form-control-sm" placeholder="Téléphone"
+                 value="{{ admin_user.telephone }}" />
         </div>
         <button type="submit" name="profile_edit_submit" class="btn btn-success btn-sm w-100">Enregistrer</button>
         <button type="button" id="btnCancelEdit" class="btn btn-secondary btn-sm w-100 mt-1">Annuler</button>
@@ -146,12 +179,12 @@
     <a href="ajoututilisateur/"><i class="fas fa-user-plus me-2"></i>Ajouter un utilisateur</a>
     <a href="editer/"><i class="fas fa-edit me-2"></i>Modifier un utilisateur</a>
     <a href="{% url 'equipements_reformer' %}">
-      <i class="fas fa-tools me-2"></i>Identifier équipements à réformer / Affecter équipement
+      <i class="fas fa-tools me-2"></i>Réformer / Affecter équipement
     </a>
-    <a href="equipements/actifs/"><i class="fas fa-desktop me-2"></i>Voir équipements actifs</a>
-    <a href="interventions/service/details/"><i class="fas fa-building me-2"></i>Voir interventions par service</a>
-    <a href="interventions/technicien/"><i class="fas fa-user-cog me-2"></i>Voir interventions par technicien</a>
-    <a href="interventions/equipement/"><i class="fas fa-tools me-2"></i>Voir interventions par équipement</a>
+    <a href="equipements/actifs/"><i class="fas fa-desktop me-2"></i>Équipements actifs</a>
+    <a href="interventions/service/details/"><i class="fas fa-building me-2"></i>Interventions par service</a>
+    <a href="interventions/technicien/"><i class="fas fa-user-cog me-2"></i>Interventions par technicien</a>
+    <a href="interventions/equipement/"><i class="fas fa-wrench me-2"></i>Interventions par équipement</a>
 
     <a href="#" data-bs-toggle="modal" data-bs-target="#chatbotModal">
       <i class="fas fa-robot me-2"></i>Assistant IA
@@ -165,112 +198,97 @@
     </form>
   </nav>
 
-  <!-- Contenu principal -->
+  <!-- Main -->
   <div class="main">
-    <nav class="navbar navbar-light bg-white mb-4 shadow-sm">
-      <div class="container-fluid d-flex justify-content-between align-items-center">
-        <span class="navbar-brand h4" style="color: var(--green-ocp);">Dashboard Administrateur</span>
+    <nav class="navbar navbar-light bg-white mb-4 shadow-sm px-3">
+      <span class="navbar-brand h4" style="color: var(--green-ocp);">
+        <i class="fas fa-chart-line me-2"></i>Dashboard Administrateur
+      </span>
 
-        <!-- Notifications -->
-        <div class="dropdown">
-          <button class="btn btn-light position-relative" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-bell"></i>
-            {% if notifications|length > 0 %}
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                {{ notifications|length }}
-              </span>
-            {% endif %}
-          </button>
+      <div class="dropdown">
+        <button class="btn btn-light position-relative" type="button" data-bs-toggle="dropdown">
+          <i class="fas fa-bell"></i>
+          {% if notifications|length > 0 %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{ notifications|length }}
+            </span>
+          {% endif %}
+        </button>
 
-          <ul class="dropdown-menu dropdown-menu-end">
-            {% for notif in notifications %}
-              <li class="dropdown-item small">
-                <strong>{{ notif.equipement.designation }}</strong><br />
-                Intervention par {{ notif.technicien.utilisateur.username }}<br />
-                <small>{{ notif.date|date:"d/m/Y H:i" }}</small>
-              </li>
-            {% empty %}
-              <li class="dropdown-item text-muted">Aucune nouvelle intervention</li>
-            {% endfor %}
-          </ul>
-        </div>
+        <ul class="dropdown-menu dropdown-menu-end">
+          {% for notif in notifications %}
+            <li class="dropdown-item small">
+              <strong>{{ notif.equipement.designation }}</strong><br>
+              Intervention par {{ notif.technicien.utilisateur.username }}<br>
+              <small>{{ notif.date|date:"d/m/Y H:i" }}</small>
+            </li>
+          {% empty %}
+            <li class="dropdown-item text-muted">Aucune notification</li>
+          {% endfor %}
+        </ul>
       </div>
     </nav>
 
-    <!-- Statistiques -->
+    <!-- Stats -->
     <section class="row mb-4">
       <div class="col-md-6 mb-3">
-        <div class="card card-hover text-center">
-          <div class="card-body">
-            <h5>Total équipements</h5>
-            <h2 id="totalEquip">–</h2>
-          </div>
+        <div class="card card-hover text-center p-3">
+          <h6>Total équipements</h6>
+          <h2 id="totalEquip">–</h2>
         </div>
       </div>
-
       <div class="col-md-6 mb-3">
-        <div class="card card-hover text-center">
-          <div class="card-body">
-            <h5>Total interventions</h5>
-            <h2 id="totalMaint">–</h2>
-          </div>
+        <div class="card card-hover text-center p-3">
+          <h6>Total interventions</h6>
+          <h2 id="totalMaint">–</h2>
         </div>
       </div>
     </section>
 
-    <!-- Graphiques -->
+    <!-- Charts -->
     <section class="row mb-5">
       <div class="col-lg-6 mb-4">
         <div class="card card-hover">
-          <div class="card-header bg-success text-white">Interventions par service</div>
+          <div class="card-header bg-success text-white fw-semibold">Interventions par service</div>
           <div class="card-body"><canvas id="chartService"></canvas></div>
         </div>
       </div>
 
       <div class="col-lg-6 mb-4">
         <div class="card card-hover">
-          <div class="card-header bg-success text-white">Top techniciens</div>
+          <div class="card-header bg-success text-white fw-semibold">Top techniciens</div>
           <div class="card-body"><canvas id="chartTech"></canvas></div>
         </div>
       </div>
     </section>
   </div>
 
-  <!-- Footer -->
-  <footer class="text-center py-3" style="background: var(--white); border-top: 1px solid #ddd;">
-    &copy; 2025 OCP Group – Admin Dashboard
+  <footer class="text-center py-3">
+    &copy; 2025 <strong>OCP Group</strong> — Tableau de bord Administrateur
   </footer>
 
   <!-- Modal Assistant IA -->
   <div class="modal fade" id="chatbotModal" tabindex="-1" aria-labelledby="chatbotModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-      <div class="modal-content">
+      <div class="modal-content border-0 shadow">
         <form id="formChatbot">
-          <div class="modal-header">
-            <h5 class="modal-title" id="chatbotModalLabel">Assistant IA de panne</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title"><i class="fas fa-robot me-2"></i>Assistant IA</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <div class="mb-2">
-              <label>Âge de l’équipement (en jours)</label>
-              <input type="number" class="form-control" name="age_days" required />
-            </div>
-            <div class="mb-2">
-              <label>Type d’équipement</label>
-              <select class="form-control" name="type_equipement" required>
-                <option value="INDIVIDUEL">INDIVIDUEL</option>
-                <option value="RESEAU">RESEAU</option>
-                <option value="DEPARTEMENTAL">DEPARTEMENTAL</option>
-              </select>
-            </div>
-            <div class="mb-2">
-              <label>Nombre de maintenances</label>
-              <input type="number" class="form-control" name="nb_maintenances" required />
-            </div>
-            <div class="mb-2">
-              <label>Alertes actives</label>
-              <input type="number" class="form-control" name="nb_alertes_actives" required />
-            </div>
+            <label>Âge de l’équipement (en jours)</label>
+            <input type="number" class="form-control mb-2" name="age_days" required />
+            <label>Type d’équipement</label>
+            <select class="form-control mb-2" name="type_equipement" required>
+              <option value="INDIVIDUEL">INDIVIDUEL</option>
+              <option value="RESEAU">RESEAU</option>
+              <option value="DEPARTEMENTAL">DEPARTEMENTAL</option>
+            </select>
+            <label>Nombre de maintenances</label>
+            <input type="number" class="form-control mb-2" name="nb_maintenances" required />
+            <label>Alertes actives</label>
+            <input type="number" class="form-control" name="nb_alertes_actives" required />
             <div id="chatbotResult" class="mt-3 fw-bold"></div>
           </div>
           <div class="modal-footer">
@@ -281,7 +299,7 @@
     </div>
   </div>
 
-  <!-- Django JSON data -->
+  <!-- JSON Django -->
   {{ service_labels|json_script:"lbl_service" }}
   {{ service_data|json_script:"val_service" }}
   {{ tech_labels|json_script:"lbl_tech" }}
@@ -301,49 +319,36 @@
 
     new Chart(document.getElementById('chartService'), {
       type: 'bar',
-      data: {
-        labels: serviceLabels,
-        datasets: [{ label: 'Interventions', data: serviceData, backgroundColor: '#178a34' }],
-      },
-      options: { responsive: true },
+      data: { labels: serviceLabels, datasets: [{ label: 'Interventions', data: serviceData, backgroundColor: '#178a34' }] },
+      options: { responsive: true }
     });
 
     new Chart(document.getElementById('chartTech'), {
       type: 'bar',
-      data: {
-        labels: techLabels,
-        datasets: [{ label: 'Interventions', data: techData, backgroundColor: '#178a34' }],
-      },
-      options: { responsive: true },
+      data: { labels: techLabels, datasets: [{ label: 'Interventions', data: techData, backgroundColor: '#178a34' }] },
+      options: { responsive: true }
     });
 
-    // Formulaire chatbot
-    document.getElementById('formChatbot').addEventListener('submit', function (e) {
+    // Chatbot
+    document.getElementById('formChatbot').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const form = e.target;
-      const data = new FormData(form);
-
-      fetch('/predict/', {
-        method: 'POST',
-        headers: { 'X-CSRFToken': '{{ csrf_token }}' },
-        body: data,
-      })
-        .then((response) => response.json())
-        .then((result) => {
-          document.getElementById('chatbotResult').innerText = 'Résultat : ' + result.prediction;
-        })
-        .catch(() => {
-          document.getElementById('chatbotResult').innerText = 'Erreur lors de la prédiction.';
-        });
+      const data = new FormData(e.target);
+      try {
+        const res = await fetch('/predict/', { method: 'POST', headers: { 'X-CSRFToken': '{{ csrf_token }}' }, body: data });
+        const result = await res.json();
+        document.getElementById('chatbotResult').innerText = "Résultat : " + result.prediction;
+      } catch {
+        document.getElementById('chatbotResult').innerText = "Erreur lors de la prédiction.";
+      }
     });
 
-    // Toggle formulaire modification profil
-    document.getElementById('btnEditProfile').addEventListener('click', function () {
-      this.style.display = 'none';
+    // Profil edit toggle
+    document.getElementById('btnEditProfile').addEventListener('click', () => {
+      document.getElementById('btnEditProfile').style.display = 'none';
       document.getElementById('formEditProfile').style.display = 'block';
     });
 
-    document.getElementById('btnCancelEdit').addEventListener('click', function () {
+    document.getElementById('btnCancelEdit').addEventListener('click', () => {
       document.getElementById('formEditProfile').style.display = 'none';
       document.getElementById('btnEditProfile').style.display = 'inline-block';
     });
